@@ -1,0 +1,101 @@
+apiVersion: {{ include "statefulsetversion" . }}
+kind: StatefulSet
+metadata:
+  name: elasticsearch-logging-ingest
+  namespace: {{ .Release.Namespace }}
+  labels:
+    garden.sapcloud.io/role: logging
+    app: elasticsearch-logging
+    role: logging
+    clusterrole: ingest
+spec:
+  selector:
+    matchLabels:
+      app: elasticsearch-logging
+      role: logging
+      clusterrole: ingest
+  serviceName: elasticsearch-logging-ingest
+  replicas: {{ .Values.elasticsearch.elasticsearchIngestReplicas }}
+  template:
+    metadata:
+      labels:
+        app: elasticsearch-logging
+        role: logging
+        clusterrole: ingest
+    spec:
+      initContainers:
+      - image: {{ index .Values.images "alpine" }}
+        command: ["sh", "-c", "if [ $(sysctl -n vm.max_map_count) -lt 262144 ]; then sysctl -w vm.max_map_count=262144; fi"]
+        name: elasticsearch-logging-init
+        securityContext:
+          privileged: true
+      containers:
+      - name: elasticsearch-logging-ingest
+        image: {{ index .Values.images "elasticsearch-oss" }}
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: CLUSTER_NAME
+          value: {{ .Values.elasticsearch.clusterName }}
+        - name: NODE_MASTER
+          value: "false"
+        - name: NODE_INGEST
+          value: "true"
+        - name: NODE_DATA
+          value: "false"
+        - name: HTTP_ENABLE
+          value: "true"
+        - name: DISCOVERY_SERVICE
+          value: elasticsearch-logging-master
+        - name: ES_JAVA_OPTS
+          value: -Xms256m -Xmx256m
+        - name: PROCESSORS
+          valueFrom:
+            resourceFieldRef:
+              resource: limits.cpu
+        resources:
+          requests:
+            cpu: 0.25
+            memory: 500Mi
+          limits:
+            cpu: 1
+            memory: 600Mi
+        ports:
+        - containerPort: {{ .Values.global.elasticsearchPorts.db }}
+          name: http
+          protocol: TCP
+        - containerPort: {{ .Values.global.elasticsearchPorts.transport }}
+          name: transport
+          protocol: TCP
+        livenessProbe:
+          tcpSocket:
+            port: transport
+          initialDelaySeconds: 20
+          periodSeconds: 10
+        # readinessProbe:
+        #   httpGet:
+        #     path: /_cluster/health
+        #     port: http
+        #   initialDelaySeconds: 3600
+        #   timeoutSeconds: 5
+        volumeMounts:
+        - name: elasticsearch-logging-ingest
+          mountPath: /data
+  volumeClaimTemplates:
+  - metadata:
+      name: elasticsearch-logging-ingest
+      labels:
+        role: logging
+        clusterrole: ingest
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: {{ .Values.elasticsearch.elasticsearchIngestVolumeSizeGB }}Gi

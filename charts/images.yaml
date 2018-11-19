@@ -165,8 +165,8 @@ images:
   tag: "0.13.4"
 - name: elasticsearch-oss
   sourceRepository: github.com/gardener/logging
-  repository: eu.gcr.io/gardener-project/gardener/elasticsearch-oss
-  tag: "0.9.0"
+  repository: hisshadow85/elasticsearch-oss
+  tag: "0.11"
 - name: curator-es
   sourceRepository: github.com/gardener/logging
   repository: eu.gcr.io/gardener-project/gardener/curator-es

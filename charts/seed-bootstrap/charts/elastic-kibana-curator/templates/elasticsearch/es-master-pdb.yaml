@@ -1,0 +1,11 @@
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: elasticsearch-logging-master
+spec:
+  maxUnavailable: {{ include "es.master.pdb" .Values.elasticsearch }}
+  selector:
+    matchLabels:
+      app: elasticsearch-logging
+      role: logging
+      clusterrole: master

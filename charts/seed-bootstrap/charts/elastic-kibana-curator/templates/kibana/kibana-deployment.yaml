@@ -36,6 +36,9 @@ spec:
         env:
         - name: ELASTICSEARCH_URL
           value: http://elasticsearch-logging:{{ .Values.global.elasticsearchPorts.db }}
+          #TODO: What is this doing?
+        - name: CLUSTER_NAME
+          value: {{ .Values.elasticsearch.clusterName }}
         ports:
         - containerPort: {{ .Values.kibanaPort }}
           name: ui

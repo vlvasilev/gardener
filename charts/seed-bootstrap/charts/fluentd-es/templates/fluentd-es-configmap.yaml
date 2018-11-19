@@ -16,7 +16,7 @@ data:
     </source>
 
   output.conf: |-
-    <filter kubernetes.**>
+    <filter {kubernetes, journald}.**>
       @type genhashvalue
       keys time, tag
       hash_type md5    # md5/sha1/sha256/sha512/mur128
@@ -57,7 +57,7 @@ data:
       @type elasticsearch_dynamic
       @log_level warn
       include_tag_key true
-      host elasticsearch-logging.${record['kubernetes']['namespace_name']}.svc
+      host elasticsearch-logging-ingest.${record['kubernetes']['namespace_name']}.svc
       port 9200
       logstash_format true
       #use _hash field for log ID
@@ -67,6 +67,16 @@ data:
       request_timeout 30s
       # this is only for debug. When flush take more time than this it will produce warning
       slow_flush_log_threshold 60
+      #???????????????????????????????????????
+      reload_connections true
+      sniffer_class_name Fluent::Plugin::ElasticsearchSimpleSniffer
+      reload_after 100000
+      # Do not wait ES to tell you what version is.
+      verify_es_version_at_startup false
+      # just harcord that version number
+      default_elasticsearch_version 6
+      # we have time field from the docker runtime
+      include_timestamp false
       <buffer tag, time>
         @type file
         #Limit the number of queued chunks
@@ -89,7 +99,7 @@ data:
       @type elasticsearch
       @log_level warn
       include_tag_key true
-      host elasticsearch-logging.{{ .Release.Namespace }}.svc
+      host elasticsearch-logging-ingest.{{ .Release.Namespace }}.svc
       port 9200
       logstash_format true
       id_key _hash
@@ -97,6 +107,16 @@ data:
       request_timeout 30s
       # this is only for debug. When flush take more time than this it will produce warning
       slow_flush_log_threshold 60
+      #what is this?TODO
+      reload_connections true
+      sniffer_class_name Fluent::Plugin::ElasticsearchSimpleSniffer
+      reload_after 100000
+      #Do not wait ES to tell you what version is.
+      verify_es_version_at_startup false
+      #just harcord that version number
+      default_elasticsearch_version 6
+      # we have time field from the docker runtime
+      include_timestamp false
       <buffer tag, time>
         @type file
         #Limit the number of queued chunks

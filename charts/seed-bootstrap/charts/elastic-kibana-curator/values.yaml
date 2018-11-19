@@ -19,7 +19,14 @@ curator:
 
 elasticsearch:
   elasticsearchReplicas: 1
+  elasticsearchDataReplicas: 3
+  elasticsearchMasterReplicas: 3
+  elasticsearchIngestReplicas: 2
+  elasticsearchDataVolumeSizeGB: 12
+  elasticsearchMasterVolumeSizeGB: 2
+  elasticsearchIngestVolumeSizeGB: 2
   elasticsearchVolumeSizeGB: 30
+  clusterName: elasticsearch-logging
   objectCount: 1
   jvmHeapBase: 1280
   resources:
