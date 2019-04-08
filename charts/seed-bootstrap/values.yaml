@@ -99,3 +99,6 @@ cert-manager:
 
 vpa:
   enabled: true
+
+global-network-policies:
+  denyAll: false

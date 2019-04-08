@@ -16,6 +16,7 @@ package azurebotanist
 
 import (
 	"fmt"
+	"net"
 
 	"github.com/gardener/gardener/pkg/operation/common"
 	"github.com/gardener/gardener/pkg/utils"
@@ -162,6 +163,12 @@ func (b *AzureBotanist) GenerateCloudControllerManagerConfig() (map[string]inter
 // GenerateCSIConfig generates the configuration for CSI charts
 func (b *AzureBotanist) GenerateCSIConfig() (map[string]interface{}, error) {
 	return nil, nil
+}
+
+// MetadataServiceAddress returns Azure's MetadataService address
+func (b *AzureBotanist) MetadataServiceAddress() (*net.IPNet, error) {
+	_, cidr, err := net.ParseCIDR("169.254.169.254/32")
+	return cidr, err
 }
 
 // GenerateKubeControllerManagerConfig generates the cloud provider specific values which are required to

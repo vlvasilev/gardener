@@ -16,6 +16,7 @@ package localbotanist
 
 import (
 	"fmt"
+	"net"
 	"strings"
 
 	"github.com/gardener/gardener/pkg/operation/common"
@@ -70,6 +71,11 @@ func (b *LocalBotanist) GenerateCloudControllerManagerConfig() (map[string]inter
 
 // GenerateCSIConfig generates the configuration for CSI charts
 func (b *LocalBotanist) GenerateCSIConfig() (map[string]interface{}, error) {
+	return nil, nil
+}
+
+// MetadataServiceAddress returns nil.
+func (b *LocalBotanist) MetadataServiceAddress() (*net.IPNet, error) {
 	return nil, nil
 }
 

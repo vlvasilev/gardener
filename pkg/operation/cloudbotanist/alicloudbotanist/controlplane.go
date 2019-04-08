@@ -18,6 +18,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"net"
 
 	"github.com/gardener/gardener/pkg/operation/common"
 )
@@ -133,6 +134,12 @@ func (b *AlicloudBotanist) GenerateCSIConfig() (map[string]interface{}, error) {
 		common.CSISnapshotterImageName,
 		common.CSINodeDriverRegistrarImageName,
 	)
+}
+
+// MetadataServiceAddress returns Aliyun's MetadataService address.
+func (b *AlicloudBotanist) MetadataServiceAddress() (*net.IPNet, error) {
+	_, cidr, err := net.ParseCIDR("100.100.100.200/32")
+	return cidr, err
 }
 
 // GenerateKubeControllerManagerConfig generates the cloud provider specific values which are required to
