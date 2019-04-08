@@ -53,6 +53,11 @@ func CBeforeEach(body interface{}, timeout time.Duration) {
 	ginkgo.BeforeEach(contextify(body, timeout), timeout.Seconds())
 }
 
+// CJustBeforeEach contextifies Gingko's JustBeforeEach
+func CJustBeforeEach(body interface{}, timeout time.Duration) {
+	ginkgo.JustBeforeEach(contextify(body, timeout), timeout.Seconds())
+}
+
 func contextify(body interface{}, timeout time.Duration, extraParams ...interface{}) func() {
 
 	bodyValue := reflect.ValueOf(body)
