@@ -16,43 +16,72 @@ package shoots
 
 import (
 	"context"
+	"fmt"
+	"reflect"
 	"time"
 
 	"github.com/gardener/gardener/test/integration/framework"
 	"github.com/onsi/ginkgo"
 )
 
-// CIt  contextifies Gingko's It
-func CIt(text string, body func(context.Context), timeout time.Duration) {
-	ginkgo.It(text, contextify(body, timeout), timeout.Seconds())
+var (
+	contextType = reflect.TypeOf(new(context.Context)).Elem()
+)
+
+// CIt contextifies Gingko's It
+func CIt(text string, body interface{}, timeout time.Duration, extraParams ...interface{}) {
+	ginkgo.It(text, contextify(body, timeout, extraParams...), timeout.Seconds())
 }
 
 // FCIt contextifies Gingko's FIt
-func FCIt(text string, body func(context.Context), timeout time.Duration) {
-	ginkgo.FIt(text, contextify(body, timeout), timeout.Seconds())
+func FCIt(text string, body interface{}, timeout time.Duration, extraParams ...interface{}) {
+	ginkgo.FIt(text, contextify(body, timeout, extraParams...), timeout.Seconds())
 }
 
 // CAfterSuite contextifies Gingko's FIt
-func CAfterSuite(body func(context.Context), timeout time.Duration) {
+func CAfterSuite(body interface{}, timeout time.Duration) {
 	ginkgo.AfterSuite(contextify(body, timeout), timeout.Seconds())
 }
 
 // CBeforeSuite contextifies Gingko's FIt
-func CBeforeSuite(body func(context.Context), timeout time.Duration) {
+func CBeforeSuite(body interface{}, timeout time.Duration) {
 	ginkgo.BeforeSuite(contextify(body, timeout), timeout.Seconds())
 }
 
 // CBeforeEach contextifies Gingko's BeforeEach
-func CBeforeEach(body func(ctx context.Context), timeout time.Duration) {
+func CBeforeEach(body interface{}, timeout time.Duration) {
 	ginkgo.BeforeEach(contextify(body, timeout), timeout.Seconds())
 }
 
-func contextify(body func(context.Context), timeout time.Duration) func() {
+func contextify(body interface{}, timeout time.Duration, extraParams ...interface{}) func() {
+
+	bodyValue := reflect.ValueOf(body)
+	bodyType := bodyValue.Type()
+
+	if bodyValue.Kind() != reflect.Func ||
+		bodyType.NumIn() == 0 ||
+		bodyType.In(0).Kind() != reflect.Interface ||
+		!bodyType.In(0).Implements(contextType) ||
+		bodyType.NumIn() != len(extraParams)+1 {
+		panic(fmt.Sprintf("Context-aware execution expects a function with at least context.Contex as first argument, got %#v", body))
+	}
+
+	values := []reflect.Value{}
+	for i, param := range extraParams {
+		var value reflect.Value
+		if param == nil {
+			inType := bodyType.In(i + 1)
+			value = reflect.Zero(inType)
+		} else {
+			value = reflect.ValueOf(param)
+		}
+		values = append(values, value)
+	}
+
 	return func() {
 		ctx, cancel := context.WithTimeout(context.Background(), timeout)
 		defer cancel()
-
-		body(ctx)
+		bodyValue.Call(append([]reflect.Value{reflect.ValueOf(ctx)}, values...))
 	}
 }
 
