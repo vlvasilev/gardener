@@ -80,17 +80,22 @@ var _ = Describe("Network Policy Testing", func() {
 
 		if StringSet(*shootName) {
 			var err error
+			//make GardenClient from kubeconfig file
 			shootGardenerTest, err = NewShootGardenerTest(*kubeconfig, nil, shootAppTestLogger)
 			Expect(err).NotTo(HaveOccurred())
-
+			//make shoot template with name and namespace
 			shoot := &v1beta1.Shoot{ObjectMeta: metav1.ObjectMeta{Namespace: *shootNamespace, Name: *shootName}}
+			//from the GardenClient extract the shoot seed and garden object as their clients in one struct -> shootTestOperations
 			shootTestOperations, err = NewGardenTestOperation(ctx, shootGardenerTest.GardenClient, shootAppTestLogger, shoot)
 			Expect(err).NotTo(HaveOccurred())
 		}
+
 		var err error
+		//get the cloud provider object
 		cloudProvider, err = shootTestOperations.GetCloudProvider()
 		Expect(err).NotTo(HaveOccurred())
-
+		//deploy namespace named "gardener-e2e-network-policies-"
+		// with lable "gardener-e2e-test": "networkpolicies"
 		ns, err := shootTestOperations.SeedClient.CreateNamespace(
 			&corev1.Namespace{
 				ObjectMeta: metav1.ObjectMeta{
@@ -104,7 +109,7 @@ var _ = Describe("Network Policy Testing", func() {
 		Expect(err).NotTo(HaveOccurred())
 
 		namespaceName = ns.GetName()
-
+		// make busybox template
 		pod := &corev1.Pod{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "busybox",
@@ -123,6 +128,7 @@ var _ = Describe("Network Policy Testing", func() {
 				},
 			},
 		}
+		// deploy the pod busybox
 		err = shootTestOperations.SeedClient.Client().Create(ctx, pod)
 		Expect(err).NotTo(HaveOccurred())
 
@@ -135,9 +141,10 @@ var _ = Describe("Network Policy Testing", func() {
 				"gardener-e2e-test": "networkpolicies",
 			})),
 		}
+		//load all namepsace objects with label ("gardener-e2e-test": "networkpolicies") into namespaces variable
 		err := shootTestOperations.SeedClient.Client().List(ctx, selector, namespaces)
 		Expect(err).NotTo(HaveOccurred())
-
+		//delete each of these namespaces
 		for _, ns := range namespaces.Items {
 			err = shootTestOperations.SeedClient.Client().Delete(ctx, &ns)
 			if err != nil && !errors.IsConflict(err) {
@@ -152,7 +159,7 @@ var _ = Describe("Network Policy Testing", func() {
 			timeout = 10 * time.Second
 		)
 		var (
-			assertMatchAllPolicies = func(podGetSelector labels.Selector, expectedPolicies sets.String) func(ctx context.Context) {
+			assertMatchAllPolicies = func(labels.Selector, expectedPolicies sets.String) func(ctx context.Context) {
 				return func(ctx context.Context) {
 
 					matched := sets.NewString()
