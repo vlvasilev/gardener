@@ -373,10 +373,11 @@ func (b *Botanist) applyAndWaitForShootOperatingSystemConfig(chartPath, name str
 // generateCloudConfigExecutionChart renders the gardener-resource-manager configuration for the cloud config user data.
 // After that it creates a ManagedResource CRD that references the rendered manifests and creates it.
 func (b *Botanist) generateCloudConfigExecutionChart() (*chartrenderer.RenderedChart, error) {
-	bootstrapTokenSecret, err := b.computeBootstrapToken()
-	if err != nil {
-		return nil, err
-	}
+	//bootstrapTokenSecret, err := b.computeBootstrapToken()
+	// if err != nil {
+	// 	return nil, err
+	// }
+	var err error
 
 	workers := make([]map[string]interface{}, 0, len(b.Shoot.Info.Spec.Provider.Workers))
 	for _, worker := range b.Shoot.Info.Spec.Provider.Workers {
@@ -397,7 +398,7 @@ func (b *Botanist) generateCloudConfigExecutionChart() (*chartrenderer.RenderedC
 	}
 
 	config := map[string]interface{}{
-		"bootstrapToken": bootstraptokenutil.TokenFromIDAndSecret(string(bootstrapTokenSecret.Data[bootstraptokenapi.BootstrapTokenIDKey]), string(bootstrapTokenSecret.Data[bootstraptokenapi.BootstrapTokenSecretKey])),
+		//"bootstrapToken": bootstraptokenutil.TokenFromIDAndSecret(string(bootstrapTokenSecret.Data[bootstraptokenapi.BootstrapTokenIDKey]), string(bootstrapTokenSecret.Data[bootstraptokenapi.BootstrapTokenSecretKey])),
 		"configFilePath": common.CloudConfigFilePath,
 		"workers":        workers,
 	}

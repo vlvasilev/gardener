@@ -37,29 +37,6 @@ if [ ! -f "$PATH_CLOUDCONFIG_OLD" ]; then
 fi
 
 if [[ ! -f "$DIR_KUBELET/kubeconfig-real" ]]; then
-  cat <<EOF > "$DIR_KUBELET/kubeconfig-bootstrap"
----
-apiVersion: v1
-kind: Config
-current-context: kubelet-bootstrap@default
-clusters:
-- cluster:
-    certificate-authority-data: $(cat "$PATH_CLOUDCONFIG_DOWNLOADER_CA_CERT" | base64 | tr -d '\n')
-    server: $(cat "$PATH_CLOUDCONFIG_DOWNLOADER_SERVER")
-  name: default
-contexts:
-- context:
-    cluster: default
-    user: kubelet-bootstrap
-  name: kubelet-bootstrap@default
-users:
-- name: kubelet-bootstrap
-  user:
-    as-user-extra: {}
-    token: {{ required ".bootstrapToken is required" .bootstrapToken }}
-EOF
-
-else
   rm -f "$DIR_KUBELET/kubeconfig-bootstrap"
 fi
 
