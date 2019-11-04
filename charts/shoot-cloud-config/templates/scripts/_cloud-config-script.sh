@@ -56,7 +56,7 @@ users:
 - name: kubelet-bootstrap
   user:
     as-user-extra: {}
-    token: {{ required ".bootstrapToken is required" .bootstrapToken }}
+    token: $(cat "$DIR_KUBELET/bootstrap-token")
 EOF
 
 else
