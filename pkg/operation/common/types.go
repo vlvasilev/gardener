@@ -317,6 +317,9 @@ const (
 	// HyperkubeImageName is the name of the Hyperkube image.
 	HyperkubeImageName = "hyperkube"
 
+	// CoreOsCloudInitImageName is the name of the coreos-cloudinit image.
+	CoreOsCloudInitImageName = "coreos-cloudinit"
+
 	// MetricsServerImageName is the name of the MetricsServer image.
 	MetricsServerImageName = "metrics-server"
 

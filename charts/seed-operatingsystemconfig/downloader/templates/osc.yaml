@@ -20,42 +20,34 @@ spec:
     enable: true
     content: |
       [Unit]
-      Description=Downloads the actual cloud config from the Shoot API server and executes it
+      Description=alabala
       After=docker.service docker.socket
       Wants=docker.socket
+      [Install]
+      WantedBy=multi-user.target
       [Service]
-      Restart=always
-      RestartSec=30
+      #Restart=on-failure
+      #RestartSec=30
       EnvironmentFile=/etc/environment
-      ExecStart=/var/lib/cloud-config-downloader/download-cloud-config.sh
+      ExecStartPre=/bin/docker run --rm -v /opt/bin:/opt/bin:rw {{ required "images.coreosCloudinit is required" (index .Values.images "coreos-cloudinit") }} cp /coreos-cloudinit /opt/bin/
+      ExecStart=/opt/bin/coreos-cloudinit \
+              --from-kube-api=/var/lib/cloud-config-downloader/credentials/kubeconfig \
+              --kube-secret-name={{ required "secretName is required" .Values.secretName }}
   files:
-  - path: /var/lib/cloud-config-downloader/credentials/server
-    permissions: 0644
+  - path: /var/lib/kubelet/kubeconfig-bootstrap
+    permissions: 0640
     content:
       inline:
-        encoding: b64
-        data: {{ .Values.server | b64enc }}
+        data: {{ include "bootstrap-kubeconfig" . | b64enc }}
   - path: /var/lib/cloud-config-downloader/credentials/ca.crt
     permissions: 0644
     content:
       secretRef:
         name: cloud-config-downloader
         dataKey: ca.crt
-  - path: /var/lib/cloud-config-downloader/credentials/client.crt
-    permissions: 0644
+  - path: /var/lib/cloud-config-downloader/credentials/kubeconfig
+    permissions: 0640
     content:
       secretRef:
         name: cloud-config-downloader
-        dataKey: cloud-config-downloader.crt
-  - path: /var/lib/cloud-config-downloader/credentials/client.key
-    permissions: 0644
-    content:
-      secretRef:
-        name: cloud-config-downloader
-        dataKey: cloud-config-downloader.key
-  - path: /var/lib/cloud-config-downloader/download-cloud-config.sh
-    permissions: 0744
-    content:
-      inline:
-        encoding: b64
-        data: {{ include "seed-operatingsystemconfig.downloader.download-script" . | b64enc }}
+        dataKey: kubeconfig

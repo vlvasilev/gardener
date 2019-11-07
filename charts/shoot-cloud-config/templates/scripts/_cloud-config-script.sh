@@ -12,22 +12,6 @@ PATH_CLOUDCONFIG_OLD="${PATH_CLOUDCONFIG}.old"
 
 mkdir -p "$DIR_CLOUDCONFIG" "$DIR_KUBELET"
 
-function docker-preload() {
-  name="$1"
-  image="$2"
-  echo "Checking whether to preload $name from $image"
-  if [ -z $(docker images -q "$image") ]; then
-    echo "Preloading $name from $image"
-    docker pull "$image"
-  else
-    echo "No need to preload $name from $image"
-  fi
-}
-
-{{ range $name, $image := (required ".images is required" .images) -}}
-docker-preload "{{ $name }}" "{{ $image }}"
-{{ end }}
-
 cat << 'EOF' | base64 -d > "$PATH_CLOUDCONFIG"
 {{ .worker.cloudConfig | b64enc }}
 EOF
@@ -56,7 +40,7 @@ users:
 - name: kubelet-bootstrap
   user:
     as-user-extra: {}
-    token: {{ required ".bootstrapToken is required" .bootstrapToken }}
+    tokenFile: {{ required ".bootstrapToken is required" .bootstrapToken }}
 EOF
 
 else

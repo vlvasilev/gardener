@@ -11,7 +11,15 @@ rules:
   - secrets
   verbs:
   - get
+  - watch
+  - list
   resourceNames:
 {{- range $key, $value := .Values.workers }}
   - {{ $value.secretName }}
 {{- end }}
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create

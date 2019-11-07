@@ -1,0 +1,11 @@
+apiVersion: {{ include "rbacversion" . }}
+kind: ClusterRoleBinding
+metadata:
+  name: cloud-config-downloader
+subjects:
+- kind: User
+  name: cloud-config-downloader
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cloud-config-downloader

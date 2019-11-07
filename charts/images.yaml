@@ -18,6 +18,10 @@ images:
 - name: hyperkube
   sourceRepository: github.com/kubernetes/kubernetes
   repository: k8s.gcr.io/hyperkube
+- name: coreos-cloudinit
+  sourceRepository: github.com/coreos/coreos-cloudinit
+  repository: hisshadow85/coreos-cloudinit
+  tag: "0.0.13"
 - name: cluster-autoscaler
   sourceRepository: github.com/gardener/autoscaler
   repository: eu.gcr.io/gardener-project/gardener/autoscaler/cluster-autoscaler
