@@ -36,10 +36,6 @@ if [ ! -f "$PATH_CLOUDCONFIG_OLD" ]; then
   touch "$PATH_CLOUDCONFIG_OLD"
 fi
 
-if [[ ! -f "$DIR_KUBELET/kubeconfig-real" ]]; then
-  rm -f "$DIR_KUBELET/kubeconfig-bootstrap"
-fi
-
 if ! diff "$PATH_CLOUDCONFIG" "$PATH_CLOUDCONFIG_OLD" >/dev/null; then
   echo "Seen newer cloud config version"
   if {{ .worker.command }}; then

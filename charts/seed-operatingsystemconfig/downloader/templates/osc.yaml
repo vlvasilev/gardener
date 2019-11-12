@@ -53,6 +53,13 @@ spec:
       secretRef:
         name: cloud-config-downloader
         dataKey: cloud-config-downloader.key
+  - path: /var/lib/kubelet/kubeconfig-bootstrap
+    permissions: 0740
+    content:
+      inline:
+        encoding: ""
+        data: | 
+{{ include "bootstrap-kubeconfig" . | indent 10 }}
   - path: /var/lib/cloud-config-downloader/download-cloud-config.sh
     permissions: 0744
     content:
