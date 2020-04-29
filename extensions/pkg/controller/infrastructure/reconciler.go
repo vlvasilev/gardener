@@ -116,11 +116,17 @@ func (r *reconciler) Reconcile(request reconcile.Request) (reconcile.Result, err
 }
 
 func (r *reconciler) reconcile(ctx context.Context, infrastructure *extensionsv1alpha1.Infrastructure, cluster *extensionscontroller.Cluster, operationType gardencorev1beta1.LastOperationType) (reconcile.Result, error) {
+
 	if err := extensionscontroller.EnsureFinalizer(ctx, r.client, FinalizerName, infrastructure); err != nil {
 		return reconcile.Result{}, err
 	}
 
 	if err := r.updateStatusProcessing(ctx, infrastructure, operationType, "Reconciling the infrastructure"); err != nil {
+		return reconcile.Result{}, err
+	}
+
+	if cluster.Shoot.Spec.Hibernation != nil && cluster.Shoot.Spec.Hibernation.Enabled != nil && *cluster.Shoot.Spec.Hibernation.Enabled {
+		err := r.updateStatusAbort(ctx, infrastructure, operationType, EventInfrastructureReconciliation, "Reconciliation of infrastructure was aborted. Shoot is hibernated")
 		return reconcile.Result{}, err
 	}
 
@@ -248,6 +254,15 @@ func (r *reconciler) updateStatusSuccess(ctx context.Context, infrastructure *ex
 	return extensionscontroller.TryUpdateStatus(ctx, retry.DefaultBackoff, r.client, infrastructure, func() error {
 		infrastructure.Status.ObservedGeneration = infrastructure.Generation
 		infrastructure.Status.LastOperation, infrastructure.Status.LastError = extensionscontroller.ReconcileSucceeded(lastOperationType, description)
+		return nil
+	})
+}
+
+func (r *reconciler) updateStatusAbort(ctx context.Context, infrastructure *extensionsv1alpha1.Infrastructure, lastOperationType gardencorev1beta1.LastOperationType, event, description string) error {
+	r.logInfo(infrastructure, event, description, "infrastructure", infrastructure.Name)
+	return extensionscontroller.TryUpdateStatus(ctx, retry.DefaultBackoff, r.client, infrastructure, func() error {
+		infrastructure.Status.ObservedGeneration = infrastructure.Generation
+		infrastructure.Status.LastOperation, infrastructure.Status.LastError = extensionscontroller.ReconcileAbort(lastOperationType, description)
 		return nil
 	})
 }

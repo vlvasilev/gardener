@@ -51,3 +51,8 @@ func ReconcileSucceeded(t gardencorev1beta1.LastOperationType, description strin
 func ReconcileError(t gardencorev1beta1.LastOperationType, description string, progress int32, codes ...gardencorev1beta1.ErrorCode) (*gardencorev1beta1.LastOperation, *gardencorev1beta1.LastError) {
 	return LastOperation(t, gardencorev1beta1.LastOperationStateError, progress, description), LastError(description, codes...)
 }
+
+// ReconcileAbort returns a LastOperation with state aborted at 100 percent and a nil LastError.
+func ReconcileAbort(t gardencorev1beta1.LastOperationType, description string) (*gardencorev1beta1.LastOperation, *gardencorev1beta1.LastError) {
+	return LastOperation(t, gardencorev1beta1.LastOperationStateAborted, 100, description), nil
+}
