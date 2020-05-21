@@ -171,5 +171,18 @@ func (b *Botanist) DeploySeedLogging(ctx context.Context) error {
 		"global": images,
 	}
 
-	return b.ChartApplierSeed.Apply(ctx, filepath.Join(common.ChartPath, "seed-bootstrap", "charts", "elastic-kibana-curator"), b.Shoot.SeedNamespace, fmt.Sprintf("%s-logging", b.Shoot.SeedNamespace), kubernetes.Values(elasticKibanaCurator))
+	err = b.ChartApplierSeed.Apply(ctx, filepath.Join(common.ChartPath, "seed-bootstrap", "charts", "elastic-kibana-curator"), b.Shoot.SeedNamespace, fmt.Sprintf("%s-logging", b.Shoot.SeedNamespace), kubernetes.Values(elasticKibanaCurator))
+	if err != nil {
+		return err
+	}
+
+	images, err = b.InjectSeedSeedImages(map[string]interface{}{},
+		common.LokiImageName,
+	)
+
+	lokiValues := map[string]interface{}{
+		"global": images,
+	}
+
+	return b.ChartApplierSeed.Apply(ctx, filepath.Join(common.ChartPath, "seed-bootstrap", "charts", "loki"), b.Shoot.SeedNamespace, fmt.Sprintf("%s-logging", b.Shoot.SeedNamespace), kubernetes.Values(lokiValues))
 }

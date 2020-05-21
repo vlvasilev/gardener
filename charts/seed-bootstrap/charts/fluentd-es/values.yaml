@@ -1,4 +1,9 @@
 global:
+  lokiPort: 3100
+  lokiLabels:
+      garden.sapcloud.io/role: logging
+      app: loki
+      role: logging
   elasticsearchPorts:
     db: 9200
     transport: 9300

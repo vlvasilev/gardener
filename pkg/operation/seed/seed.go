@@ -373,6 +373,7 @@ func BootstrapCluster(k8sGardenClient kubernetes.Interface, seed *Seed, config *
 			common.AlpineImageName,
 			common.ConfigMapReloaderImageName,
 			common.CuratorImageName,
+			common.LokiImageName,
 			common.ElasticsearchImageName,
 			common.ElasticsearchMetricsExporterImageName,
 			common.FluentBitImageName,

@@ -153,6 +153,7 @@ global:
     elasticsearch-oss: image-repository:image-tag
     elasticsearch-searchguard-oss: image-repository:image-tag
     fluentd-es: image-repository:image-tag
+    loki: image-repository:image-tag
     gardener-resource-manager: image-repository:image-tag
     gardener-seed-admission-controller: image-repository:image-tag
     grafana: image-repository:image-tag

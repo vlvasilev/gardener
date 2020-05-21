@@ -72,6 +72,36 @@ data:
 
   filter-kubernetes.conf: |-
     [FILTER]
+        Name record_modifier
+        Match journald.docker*
+        Record hostname ${NODE_NAME}
+        Record unit docker
+
+    [FILTER]
+        Name record_modifier
+        Match journald.kubelet*
+        Record hostname ${NODE_NAME}
+        Record unit kubelet
+
+    [FILTER]
+        Name record_modifier
+        Match journald.cloud-config-downloader*
+        Record hostname ${NODE_NAME}
+        Record unit cloud-config-downloader
+
+    [FILTER]
+        Name record_modifier
+        Match journald.docker-monitor*
+        Record hostname ${NODE_NAME}
+        Record unit docker-monitor
+
+    [FILTER]
+        Name record_modifier
+        Match journald.kubelet-monitor*
+        Record hostname ${NODE_NAME}
+        Record unit kubelet-monitor
+    
+    [FILTER]
         Name                parser
         Match               kubernetes.kube-apiserver*kube-apiserver*
         Key_Name            log
@@ -236,11 +266,13 @@ data:
     [FILTER]
         Name                kubernetes
         Match               kubernetes.*
+        Kube_Tag_Prefix     kubernetes.var.log.containers.
         Kube_URL            https://kubernetes.default.svc.cluster.local:443
         Buffer_Size         1M
-        Labels              Off
+        Labels              On
         Annotations         Off
         tls.verify          Off
+        K8S-Logging.Exclude Off
 
     [FILTER]
         Name record_modifier
@@ -277,18 +309,65 @@ data:
         Match               kubernetes.*
         script              modify_severity.lua
         call                cb_modify
+    
+    # [FILTER]
+    #     Name                lua
+    #     Match               *
+    #     script              print_tag.lua
+    #     call                cb_print_tag
 
 {{ if .Values.fluentbit.extensions.filters }}
 {{- toString .Values.fluentbit.extensions.filters | indent 4 }}
 {{- end }}
 
   output-fluentd.conf: |
+    # [OUTPUT]
+    #      Name null
+    #      Match *
+    # [OUTPUT]
+    #     Name            stdout
+    #     Match           *
+    #     Format          json
     [OUTPUT]
         Name            forward
         Match           *
         Host            ${FLUENTD_HOST}
         Port            ${FLUENTD_PORT}
+    
+    [Output]
+        Name loki
+        Match kubernetes.*
+        Url http://loki.garden.svc:3100/loki/api/v1/push
+        BatchWait 1
+        # (1sec)
+        BatchSize 30720
+        # (30KiB)
+        Labels {test="fluent-bit-go", lang="Golang"}
+        LineFormat json
+        AutoKubernetesLabels true
+        RemoveKeys kubernetes,stream,user,hostname,unit
+        LabelMapPath /fluent-bit/etc/kubernetes_label_map.json
+        DynamicHostPath {"kubernetes": {"namespace_name": "namespace"}}
+        DynamicHostPrefix http://loki.
+        DynamicHostSulfix .svc:3100/loki/api/v1/push
+        DynamicHostRegex shoot--
 
+    [Output]
+        Name loki
+        Match journald.*
+        Url http://loki.garden.svc:3100/loki/api/v1/push
+        BatchWait 1
+        # (1sec)
+        BatchSize 30720
+        # (30KiB)
+        Labels {test="fluent-bit-go", lang="Golang"}
+        LineFormat json
+        RemoveKeys kubernetes,stream
+        LabelMapPath /fluent-bit/etc/systemd_label_map.json
+        DynamicHostPath {"kubernetes": {"namespace_name": "namespace"}}
+        DynamicHostPrefix http://loki.
+        DynamicHostSulfix .svc:3100/loki/api/v1/push
+        DynamicHostRegex alabala
   parsers.conf: |-
     [PARSER]
         Name        docker
@@ -385,7 +464,10 @@ data:
 {{ if .Values.fluentbit.extensions.parsers }}
 {{- toString .Values.fluentbit.extensions.parsers | indent 4 }}
 {{- end }}
-
+  
+  plugin.conf: |-
+    [PLUGINS]
+        Path /fluent-bit/plugins/out_loki.so
   modify_severity.lua: |-
     function cb_modify(tag, timestamp, record)
       local unified_severity = cb_modify_unify_severity(record)
@@ -432,3 +514,32 @@ data:
     function trim(s)
       return (s:gsub("^%s*(.-)%s*$", "%1"))
     end
+
+  print_tag.lua: |-
+    function cb_print_tag(tag, timestamp, record)
+       output = tag .. ":  [" .. string.format("%f", timestamp) .. ", { "
+
+       for key, val in pairs(record) do
+         output = output .. string.format(" %s => %s,", key, val)
+       end
+        
+       output = string.sub(output,1,-2) .. " }]"
+       print(output)
+
+      -- Record not modified so 'code' return value is 0 (first parameter)
+      return 0, 0, 0
+    end
+  kubernetes_label_map.json: |-
+    {
+      "kubernetes": {
+        "container_name": "container",
+        "pod_name": "pod"
+      },
+      "type": "user"
+    }
+
+  systemd_label_map.json: |-
+    {
+      "hostname": "hostname",
+      "unit": "unit"
+    }
