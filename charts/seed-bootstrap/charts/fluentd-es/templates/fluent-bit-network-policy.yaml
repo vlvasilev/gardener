@@ -12,6 +12,15 @@ spec:
 {{ toYaml .Values.fluentbit.labels | indent 6 }}
   egress:
   - to:
+     # Match all namespaces
+    - namespaceSelector: {}
+    - podSelector:
+        matchLabels:
+{{ toYaml .Values.global.lokiLabels | indent 10 }}
+    ports:
+    - protocol: TCP
+      port: {{ .Values.global.lokiPort }}
+  - to:
     - podSelector:
         matchLabels:
 {{ toYaml .Values.fluentd.labels | indent 10 }}

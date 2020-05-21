@@ -455,6 +455,9 @@ const (
 	// ElasticsearchImageName is the name of the Elastic-Search image used for logging
 	ElasticsearchImageName = "elasticsearch-oss"
 
+	// LokiImageName is the name of the Loki image used for logging
+	LokiImageName = "loki"
+
 	// ElasticsearchMetricsExporterImageName is the name of the metrics exporter image used to fetch elasticsearch metrics.
 	ElasticsearchMetricsExporterImageName = "elasticsearch-metrics-exporter"
 

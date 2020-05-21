@@ -24,6 +24,8 @@ spec:
         image: {{ index .Values.global.images "fluent-bit" }}
         command:
           - /fluent-bit/bin/fluent-bit
+          - -e
+          - /fluent-bit/plugins/out_loki.so
           - -c
           - /fluent-bit/etc/fluent-bit.conf
         env:
@@ -31,6 +33,10 @@ spec:
           value: fluentd-es
         - name: FLUENTD_PORT
           value: "{{ .Values.fluentd.ports.forward }}"
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
         resources:
           limits:
             cpu: 35m
