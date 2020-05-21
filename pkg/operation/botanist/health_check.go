@@ -432,23 +432,11 @@ func (b *HealthChecker) CheckLoggingControlPlane(
 	namespace string,
 	isTestingShoot bool,
 	condition gardencorev1beta1.Condition,
-	deploymentLister kutil.DeploymentLister,
 	statefulSetLister kutil.StatefulSetLister,
 ) (*gardencorev1beta1.Condition, error) {
 
 	if isTestingShoot {
 		return nil, nil
-	}
-
-	deploymentList, err := deploymentLister.Deployments(namespace).List(loggingSelector)
-	if err != nil {
-		return nil, err
-	}
-	if exitCondition := b.checkRequiredDeployments(condition, common.RequiredLoggingDeployments, deploymentList); exitCondition != nil {
-		return exitCondition, nil
-	}
-	if exitCondition := b.checkDeployments(condition, deploymentList); exitCondition != nil {
-		return exitCondition, nil
 	}
 
 	statefulSetList, err := statefulSetLister.StatefulSets(namespace).List(loggingSelector)
@@ -506,7 +494,7 @@ func (b *Botanist) checkControlPlane(
 		return exitCondition, err
 	}
 	if gardenletfeatures.FeatureGate.Enabled(features.Logging) {
-		if exitCondition, err := checker.CheckLoggingControlPlane(b.Shoot.SeedNamespace, b.Shoot.GetPurpose() == gardencorev1beta1.ShootPurposeTesting, condition, seedDeploymentLister, seedStatefulSetLister); err != nil || exitCondition != nil {
+		if exitCondition, err := checker.CheckLoggingControlPlane(b.Shoot.SeedNamespace, b.Shoot.GetPurpose() == gardencorev1beta1.ShootPurposeTesting, condition, seedStatefulSetLister); err != nil || exitCondition != nil {
 			return exitCondition, err
 		}
 	}
