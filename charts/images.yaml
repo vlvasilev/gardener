@@ -175,7 +175,7 @@ images:
 - name: fluent-bit
   sourceRepository: github.com/fluent/fluent-bit
   repository: hisshadow85/fluent-bit-to-loki
-  tag: "0.0.8"
+  tag: "0.1.0"
 - name: elasticsearch-oss
   sourceRepository: github.com/elastic/elasticsearch-docker
   repository: docker.elastic.co/elasticsearch/elasticsearch-oss
