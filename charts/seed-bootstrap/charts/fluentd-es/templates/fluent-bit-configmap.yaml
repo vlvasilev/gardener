@@ -117,6 +117,13 @@ data:
 
     [FILTER]
         Name                parser
+        Match               kubernetes.*cloud-controller-manager*cloud-controller-manager*
+        Key_Name            log
+        Parser              kubeapiserverParser
+        Reserve_Data        True
+
+    [FILTER]
+        Name                parser
         Match               kubernetes.*kube-scheduler*cloud-kube-scheduler*
         Key_Name            log
         Parser              kubeapiserverParser
@@ -201,6 +208,13 @@ data:
 
     [FILTER]
         Name                parser
+        Match               kubernetes.*vpn-seed*vpn-seed*
+        Key_Name            log
+        Parser              vpnshootParser
+        Reserve_Data        True
+
+    [FILTER]
+        Name                parser
         Match               kubernetes.*addons-kubernetes-dashboard*kubernetes-dashboard*
         Key_Name            log
         Parser              kubernetesdashboardParser
@@ -261,6 +275,76 @@ data:
         Match               kubernetes.*gardener-resource-manager*gardener-resource-manager*
         Key_Name            log
         Parser              addonmanagerParser
+        Reserve_Data        True
+
+    [FILTER]
+        Name                parser
+        Match               kubernetes.*dependency-watchdog*dependency-watchdog*
+        Key_Name            log
+        Parser              kubeapiserverParser
+        Reserve_Data        True
+
+    [FILTER]
+        Name                parser
+        Match               kubernetes.*hvpa-controller*hvpa-controller*
+        Key_Name            log
+        Parser              kubeapiserverParser
+        Reserve_Data        True
+
+    [FILTER]
+        Name                parser
+        Match               kubernetes.*node-problem-detector*node-problem-detector*
+        Key_Name            log
+        Parser              kubeapiserverParser
+        Reserve_Data        True
+
+    [FILTER]
+        Name                parser
+        Match               kubernetes.*vpa-exporter*exporter*
+        Key_Name            log
+        Parser              kubeapiserverParser
+        Reserve_Data        True
+
+    [FILTER]
+        Name                parser
+        Match               kubernetes.*vpa-updater*updater*
+        Key_Name            log
+        Parser              kubeapiserverParser
+        Reserve_Data        True
+
+    [FILTER]
+        Name                parser
+        Match               kubernetes.*vpa-recommender*recommender*
+        Key_Name            log
+        Parser              kubeapiserverParser
+        Reserve_Data        True
+
+    [FILTER]
+        Name                parser
+        Match               kubernetes.*catalog-catalog-apiserver*apiserver*
+        Key_Name            log
+        Parser              kubeapiserverParser
+        Reserve_Data        True
+
+    [FILTER]
+        Name                parser
+        Match               kubernetes.*catalog-catalog-controller-manager*controller-manager*
+        Key_Name            log
+        Parser              kubeapiserverParser
+        Reserve_Data        True
+
+    [FILTER]
+        Name                parser
+        Match               kubernetes.*etcd-catalog*etcd*
+        Key_Name            log
+        Parser              kubeapiserverParser
+        Reserve_Data        True
+
+    [FILTER]
+        Name                parser
+        Match               kubernetes.*machine-controller-manager*machine-controller-manager*
+        Key_Name            log
+        Parser              kubeapiserverParser
         Reserve_Data        True
 
     [FILTER]
@@ -488,22 +572,22 @@ data:
 
       severity = trim(severity):upper()
 
-      if severity == "I" or severity == "INF" or severity == "INFO" then
+      if severity == "I" or severity == "INF" or severity == "INFO" or severity == "info" then
         record["severity"] = "INFO"
         modified = true
-      elseif severity == "W" or severity == "WRN" or severity == "WARN" or severity == "WARNING" then
+      elseif severity == "W" or severity == "WRN" or severity == "WARN" or severity == "WARNING" or severity == "warning" then
         record["severity"] = "WARN"
         modified = true
-      elseif severity == "E" or severity == "ERR" or severity == "ERROR" then
+      elseif severity == "E" or severity == "ERR" or severity == "ERROR" or severity == "error" then
         record["severity"] = "ERR"
         modified = true
-      elseif severity == "D" or severity == "DBG" or severity == "DEBUG" then
+      elseif severity == "D" or severity == "DBG" or severity == "DEBUG" or severity == "debug" then
         record["severity"] = "DBG"
         modified = true
-      elseif severity == "N" or severity == "NOTICE" then
+      elseif severity == "N" or severity == "NOTICE" or severity == "notice" then
         record["severity"] = "NOTICE"
         modified = true
-      elseif severity == "F" or severity == "FATAL" then
+      elseif severity == "F" or severity == "FATAL" or severity == "fatal" then
         record["severity"] = "FATAL"
         modified = true
       end
