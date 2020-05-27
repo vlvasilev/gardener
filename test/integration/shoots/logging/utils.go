@@ -17,13 +17,14 @@ package logging
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/gardener/gardener/pkg/client/kubernetes"
 	"github.com/gardener/gardener/pkg/utils/retry"
 	"github.com/gardener/gardener/test/framework"
 	"github.com/onsi/ginkgo"
 	appsv1 "k8s.io/api/apps/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"time"
 )
 
 // Checks whether required logging resources are present.
@@ -34,8 +35,8 @@ func hasRequiredResources(ctx context.Context, k8sSeedClient kubernetes.Interfac
 		return false, err
 	}
 
-	fluentd := &appsv1.StatefulSet{}
-	if err := k8sSeedClient.Client().Get(ctx, client.ObjectKey{Namespace: garden, Name: fluentdName}, fluentd); err != nil {
+	loki := &appsv1.StatefulSet{}
+	if err := k8sSeedClient.Client().Get(ctx, client.ObjectKey{Namespace: garden, Name: lokiName}, loki); err != nil {
 		return false, err
 	}
 

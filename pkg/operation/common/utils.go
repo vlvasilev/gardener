@@ -363,7 +363,8 @@ func DeleteLoggingStack(ctx context.Context, k8sClient client.Client, namespace 
 
 	pvc := &corev1.PersistentVolumeClaim{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "elasticsearch-logging-elasticsearch-logging-0",
+			//TODO: Check is this is the real name
+			Name:      "loki-loki-0",
 			Namespace: namespace,
 		},
 	}
