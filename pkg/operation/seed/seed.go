@@ -397,6 +397,9 @@ func BootstrapCluster(k8sGardenClient kubernetes.Interface, seed *Seed, config *
 	)
 
 	if loggingEnabled {
+		if err := common.DeleteOldLoggingStack(context.TODO(), k8sSeedClient.Client(), v1beta1constants.GardenNamespace); err != nil && !apierrors.IsNotFound(err) {
+			return err
+		}
 		// Read extension provider specific configuration
 		existingConfigMaps := &corev1.ConfigMapList{}
 		if err = k8sSeedClient.Client().List(context.TODO(), existingConfigMaps,

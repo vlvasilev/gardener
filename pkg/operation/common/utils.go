@@ -41,6 +41,7 @@ import (
 	batchv1beta1 "k8s.io/api/batch/v1beta1"
 	corev1 "k8s.io/api/core/v1"
 	extensionsv1beta1 "k8s.io/api/extensions/v1beta1"
+	networkingv1 "k8s.io/api/networking/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	schedulingv1beta1 "k8s.io/api/scheduling/v1beta1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -397,6 +398,87 @@ func DeleteReserveExcessCapacity(ctx context.Context, k8sClient client.Client) e
 		},
 	}
 	return client.IgnoreNotFound(k8sClient.Delete(ctx, priorityClass))
+}
+
+// DeleteOldLoggingStack deletes all resource of the old EFK logging stack in the given namespace.
+// TODO: Should be remove on the next garden release
+func DeleteOldLoggingStack(ctx context.Context, k8sClient client.Client, namespace string) error {
+	if k8sClient == nil {
+		return errors.New("must provide non-nil kubernetes client to common.DeleteLoggingStack")
+	}
+
+	// Delete the resources below that match "garden.sapcloud.io/role=logging"
+	lists := []runtime.Object{
+		&corev1.ConfigMapList{},
+		&batchv1beta1.CronJobList{},
+		&rbacv1.ClusterRoleList{},
+		&rbacv1.ClusterRoleBindingList{},
+		&rbacv1.RoleList{},
+		&rbacv1.RoleBindingList{},
+		&appsv1.DeploymentList{},
+		&autoscalingv2beta1.HorizontalPodAutoscalerList{},
+		&extensionsv1beta1.IngressList{},
+		&corev1.SecretList{},
+		&corev1.ServiceAccountList{},
+		&corev1.ServiceList{},
+		&appsv1.StatefulSetList{},
+		&corev1.PersistentVolumeClaimList{},
+	}
+
+	labels := []map[string]string{
+		map[string]string{
+			"app": "fluentd-es",
+		},
+		map[string]string{
+			"app": "elasticsearch-logging",
+		},
+		map[string]string{
+			"app": "curator",
+		},
+		map[string]string{
+			"app": "kibana-logging",
+		},
+	}
+
+	for _, list := range lists {
+		for _, value := range labels {
+			if err := deleteList(ctx, k8sClient, list, namespace, "app", value["app"]); err != nil {
+				return err
+			}
+		}
+	}
+
+	return deleteNetworkPoliciesFromOldLoggingStack(ctx, k8sClient, namespace)
+}
+
+func deleteList(ctx context.Context, k8sClient client.Client, list runtime.Object, namespace, labelKey, labelValue string) error {
+	if err := k8sClient.List(ctx, list,
+		client.InNamespace(namespace),
+		client.MatchingLabels(map[string]string{labelKey: labelValue})); err != nil {
+		return err
+	}
+
+	return meta.EachListItem(list, func(obj runtime.Object) error {
+		return client.IgnoreNotFound(k8sClient.Delete(ctx, obj, kubernetes.DefaultDeleteOptions...))
+	})
+}
+
+func deleteNetworkPoliciesFromOldLoggingStack(ctx context.Context, k8sClient client.Client, namespace string) error {
+	names := []string{
+		"allow-elasticsearch",
+		"allow-to-elasticsearch",
+		"allow-fluentd",
+		"allow-kibana",
+	}
+
+	for _, name := range names {
+		netpol := &networkingv1.NetworkPolicy{ObjectMeta: kutil.ObjectMeta(namespace, name)}
+		if err := client.IgnoreNotFound(k8sClient.Delete(ctx, netpol)); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 // DeleteAlertmanager deletes all resources of the Alertmanager in a given namespace.
