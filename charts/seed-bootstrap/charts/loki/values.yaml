@@ -5,7 +5,7 @@ global:
     labels:
       garden.sapcloud.io/role: logging
       app: fluent-bit
-      role: logging 
+      role: logging
 
 annotations: {}
 

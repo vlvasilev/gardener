@@ -400,12 +400,6 @@ data:
         Match               kubernetes.*
         script              modify_severity.lua
         call                cb_modify
-    
-    # [FILTER]
-    #     Name                lua
-    #     Match               *
-    #     script              print_tag.lua
-    #     call                cb_print_tag
 
 {{ if .Values.extensions.filters }}
 {{- toString .Values.extensions.filters | indent 4 }}
@@ -594,25 +588,11 @@ data:
       return (s:gsub("^%s*(.-)%s*$", "%1"))
     end
 
-  print_tag.lua: |-
-    function cb_print_tag(tag, timestamp, record)
-       output = tag .. ":  [" .. string.format("%f", timestamp) .. ", { "
-
-       for key, val in pairs(record) do
-         output = output .. string.format(" %s => %s,", key, val)
-       end
-        
-       output = string.sub(output,1,-2) .. " }]"
-       print(output)
-
-      -- Record not modified so 'code' return value is 0 (first parameter)
-      return 0, 0, 0
-    end
   kubernetes_label_map.json: |-
     {
       "kubernetes": {
-        "container_name": "container",
-        "pod_name": "pod"
+        "container_name": "container_name",
+        "pod_name": "pod_name"
       },
       "type": "user"
     }
