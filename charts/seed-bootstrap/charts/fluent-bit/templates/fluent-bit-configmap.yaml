@@ -416,14 +416,16 @@ data:
         Name loki
         Match kubernetes.*
         Url http://loki.garden.svc:3100/loki/api/v1/push
+        LogLevel info
         BatchWait 1
         # (1sec)
         BatchSize 30720
         # (30KiB)
         Labels {test="fluent-bit-go", lang="Golang"}
         LineFormat json
+        DropSingleKey false
         AutoKubernetesLabels true
-        RemoveKeys kubernetes,stream,type,hostname,unit,time
+        RemoveKeys kubernetes,stream,type,time
         LabelMapPath /fluent-bit/etc/kubernetes_label_map.json
         DynamicHostPath {"kubernetes": {"namespace_name": "namespace"}}
         DynamicHostPrefix http://loki.
@@ -434,18 +436,17 @@ data:
         Name loki
         Match journald.*
         Url http://loki.garden.svc:3100/loki/api/v1/push
+        LogLevel info
         BatchWait 1
         # (1sec)
         BatchSize 30720
         # (30KiB)
         Labels {test="fluent-bit-go", lang="Golang"}
         LineFormat json
-        RemoveKeys kubernetes,stream
+        DropSingleKey false
+        RemoveKeys kubernetes,steram,hostname,unit
         LabelMapPath /fluent-bit/etc/systemd_label_map.json
-        DynamicHostPath {"kubernetes": {"namespace_name": "namespace"}}
-        DynamicHostPrefix http://loki.
-        DynamicHostSulfix .svc:3100/loki/api/v1/push
-        DynamicHostRegex alabala
+        DynamicHostRegex unmachableRegex
   parsers.conf: |-
     [PARSER]
         Name        docker

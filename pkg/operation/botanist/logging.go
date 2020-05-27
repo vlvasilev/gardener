@@ -32,6 +32,11 @@ func (b *Botanist) DeploySeedLogging(ctx context.Context) error {
 		return common.DeleteLoggingStack(ctx, b.K8sSeedClient.Client(), b.Shoot.SeedNamespace)
 	}
 
+	err := common.DeleteOldLoggingStack(ctx, b.K8sSeedClient.Client(), b.Shoot.SeedNamespace)
+	if err != nil {
+		return nil
+	}
+
 	images, err := b.InjectSeedSeedImages(map[string]interface{}{},
 		common.LokiImageName,
 	)
@@ -40,7 +45,8 @@ func (b *Botanist) DeploySeedLogging(ctx context.Context) error {
 	}
 
 	lokiValues := map[string]interface{}{
-		"global": images,
+		"global":   images,
+		"replicas": b.Shoot.GetReplicas(1),
 	}
 
 	return b.ChartApplierSeed.Apply(ctx, filepath.Join(common.ChartPath, "seed-bootstrap", "charts", "loki"), b.Shoot.SeedNamespace, fmt.Sprintf("%s-logging", b.Shoot.SeedNamespace), kubernetes.Values(lokiValues))
