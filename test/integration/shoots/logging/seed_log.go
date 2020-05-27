@@ -38,7 +38,7 @@ const (
 	loggerDeploymentCleanupTimeout = 2 * time.Minute
 
 	fluentBitName = "fluent-bit"
-	fluentdName   = "fluentd-es"
+	lokiName      = "loki"
 	garden        = "garden"
 	logger        = "logger"
 )

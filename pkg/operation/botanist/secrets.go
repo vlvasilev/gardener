@@ -24,8 +24,6 @@ import (
 	gardencorev1beta1 "github.com/gardener/gardener/pkg/apis/core/v1beta1"
 	v1beta1constants "github.com/gardener/gardener/pkg/apis/core/v1beta1/constants"
 	gardencorev1beta1helper "github.com/gardener/gardener/pkg/apis/core/v1beta1/helper"
-	"github.com/gardener/gardener/pkg/features"
-	gardenletfeatures "github.com/gardener/gardener/pkg/gardenlet/features"
 	"github.com/gardener/gardener/pkg/operation/common"
 	"github.com/gardener/gardener/pkg/operation/seed"
 	kutil "github.com/gardener/gardener/pkg/utils/kubernetes"
@@ -600,94 +598,6 @@ func (b *Botanist) generateWantedSecrets(basicAuthAPIServer *secrets.BasicAuth, 
 		},
 	})
 
-	loggingEnabled := gardenletfeatures.FeatureGate.Enabled(features.Logging)
-	if loggingEnabled {
-		elasticsearchHosts := []string{"elasticsearch-logging",
-			fmt.Sprintf("elasticsearch-logging.%s", b.Shoot.SeedNamespace),
-			fmt.Sprintf("elasticsearch-logging.%s.svc", b.Shoot.SeedNamespace),
-		}
-		secretList = append(secretList,
-			&secrets.CertificateSecretConfig{
-				Name: common.KibanaTLS,
-
-				CommonName:   "kibana",
-				Organization: []string{"gardener.cloud:logging:ingress"},
-				DNSNames:     b.ComputeKibanaHosts(),
-				IPAddresses:  nil,
-
-				CertType:  secrets.ServerCert,
-				SigningCA: certificateAuthorities[v1beta1constants.SecretNameCACluster],
-				Validity:  &endUserCrtValidity,
-			},
-			// Secret for elasticsearch
-			&secrets.CertificateSecretConfig{
-				Name: "elasticsearch-logging-server",
-
-				CommonName:   "elasticsearch",
-				Organization: nil,
-				DNSNames:     elasticsearchHosts,
-				IPAddresses:  nil,
-
-				CertType:  secrets.ServerClientCert,
-				SigningCA: certificateAuthorities[v1beta1constants.SecretNameCACluster],
-				PKCS:      secrets.PKCS8,
-			},
-			// Secret definition for logging
-			&secrets.BasicAuthSecretConfig{
-				Name:   "logging-ingress-credentials-users",
-				Format: secrets.BasicAuthFormatNormal,
-
-				Username:                  "user",
-				PasswordLength:            32,
-				BcryptPasswordHashRequest: true,
-			},
-			&secrets.BasicAuthSecretConfig{
-				Name:   "logging-ingress-credentials",
-				Format: secrets.BasicAuthFormatNormal,
-
-				Username:                  "admin",
-				PasswordLength:            32,
-				BcryptPasswordHashRequest: true,
-			},
-			&secrets.CertificateSecretConfig{
-				Name: "sg-admin-client",
-
-				CommonName:   "elasticsearch-logging",
-				Organization: nil,
-				DNSNames:     elasticsearchHosts,
-				IPAddresses:  nil,
-
-				CertType:  secrets.ClientCert,
-				SigningCA: certificateAuthorities[v1beta1constants.SecretNameCACluster],
-				PKCS:      secrets.PKCS8,
-			},
-			&secrets.BasicAuthSecretConfig{
-				Name:   "kibana-logging-sg-credentials",
-				Format: secrets.BasicAuthFormatNormal,
-
-				Username:                  "kibanaserver",
-				PasswordLength:            32,
-				BcryptPasswordHashRequest: true,
-			},
-			&secrets.BasicAuthSecretConfig{
-				Name:   "curator-sg-credentials",
-				Format: secrets.BasicAuthFormatNormal,
-
-				Username:                  "curator",
-				PasswordLength:            32,
-				BcryptPasswordHashRequest: true,
-			},
-			&secrets.BasicAuthSecretConfig{
-				Name:   "admin-sg-credentials",
-				Format: secrets.BasicAuthFormatNormal,
-
-				Username:                  "admin",
-				PasswordLength:            32,
-				BcryptPasswordHashRequest: true,
-			},
-		)
-	}
-
 	return secretList, nil
 }
 
@@ -1117,14 +1027,6 @@ func (b *Botanist) SyncShootCredentialsToGarden(ctx context.Context) error {
 			suffix:      secretSuffixMonitoring,
 			annotations: map[string]string{"url": "https://" + b.ComputeGrafanaUsersHost()},
 		},
-	}
-
-	if gardenletfeatures.FeatureGate.Enabled(features.Logging) {
-		projectSecrets = append(projectSecrets, projectSecret{
-			secretName:  "logging-ingress-credentials-users",
-			suffix:      secretSuffixLogging,
-			annotations: map[string]string{"url": "https://" + b.ComputeKibanaHost()},
-		})
 	}
 
 	for _, projectSecret := range projectSecrets {
