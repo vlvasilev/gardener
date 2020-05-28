@@ -1233,12 +1233,36 @@
       }
     },
     {
+      "datasource": "loki",
+      "gridPos": {
+        "h": 11,
+        "w": 24,
+        "x": 0,
+        "y": 37
+      },
+      "id": 52,
+      "options": {
+        "showTime": true,
+        "sortOrder": "Descending"
+      },
+      "targets": [
+        {
+          "expr": "{container_name=\"kube-apiserver\"}",
+          "refId": "A"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "API Server Logs",
+      "type": "logs"
+    },
+    {
       "collapsed": true,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 37
+        "y": 48
       },
       "id": 20,
       "panels": [
@@ -1253,7 +1277,7 @@
             "h": 6,
             "w": 12,
             "x": 0,
-            "y": 39
+            "y": 49
           },
           "id": 16,
           "legend": {
@@ -1352,7 +1376,7 @@
             "h": 6,
             "w": 12,
             "x": 12,
-            "y": 39
+            "y": 49
           },
           "id": 18,
           "legend": {
@@ -1451,7 +1475,7 @@
             "h": 6,
             "w": 12,
             "x": 0,
-            "y": 45
+            "y": 55
           },
           "id": 47,
           "legend": {
@@ -1524,6 +1548,30 @@
             "align": false,
             "alignLevel": null
           }
+        },
+        {
+          "datasource": "loki",
+          "gridPos": {
+            "h": 11,
+            "w": 24,
+            "x": 0,
+            "y": 61
+          },
+          "id": 54,
+          "options": {
+            "showTime": true,
+            "sortOrder": "Descending"
+          },
+          "targets": [
+            {
+              "expr": "{container_name=\"kube-controller-manager\"}",
+              "refId": "A"
+            }
+          ],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "Kube-controller-manager logs",
+          "type": "logs"
         }
       ],
       "title": "Kube-controller-manager",
@@ -1535,7 +1583,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 38
+        "y": 49
       },
       "id": 30,
       "panels": [
@@ -1550,7 +1598,7 @@
             "h": 6,
             "w": 12,
             "x": 0,
-            "y": 40
+            "y": 73
           },
           "id": 27,
           "legend": {
@@ -1649,7 +1697,7 @@
             "h": 6,
             "w": 12,
             "x": 12,
-            "y": 40
+            "y": 73
           },
           "id": 28,
           "legend": {
@@ -1755,7 +1803,7 @@
             "h": 6,
             "w": 12,
             "x": 0,
-            "y": 46
+            "y": 79
           },
           "id": 5,
           "isNew": false,
@@ -1842,7 +1890,7 @@
             "h": 6,
             "w": 12,
             "x": 12,
-            "y": 46
+            "y": 79
           },
           "id": 48,
           "legend": {
@@ -1915,6 +1963,30 @@
             "align": false,
             "alignLevel": null
           }
+        },
+        {
+          "datasource": "loki",
+          "gridPos": {
+            "h": 11,
+            "w": 24,
+            "x": 0,
+            "y": 85
+          },
+          "id": 56,
+          "options": {
+            "showTime": true,
+            "sortOrder": "Descending"
+          },
+          "targets": [
+            {
+              "expr": "{container_name=\"kube-scheduler\"}",
+              "refId": "A"
+            }
+          ],
+          "timeFrom": null,
+          "timeShift": null,
+          "title": "Kube-scheduler logs",
+          "type": "logs"
         }
       ],
       "title": "Kube-scheduler",
@@ -1922,7 +1994,7 @@
     }
   ],
   "refresh": "1m",
-  "schemaVersion": 18,
+  "schemaVersion": 20,
   "style": "dark",
   "tags": [
     "controlplane",

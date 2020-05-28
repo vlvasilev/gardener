@@ -99,7 +99,7 @@ images:
 - name: grafana
   sourceRepository: github.com/grafana/grafana
   repository: grafana/grafana
-  tag: "6.4.2"
+  tag: "7.0.1"
 - name: blackbox-exporter
   sourceRepository: github.com/prometheus/blackbox_exporter
   repository: quay.io/prometheus/blackbox-exporter
@@ -171,7 +171,11 @@ images:
 - name: fluent-bit
   sourceRepository: github.com/fluent/fluent-bit
   repository: hisshadow85/fluent-bit-to-loki
-  tag: "0.1.0"
+  tag: "0.1.1"
+- name: elasticsearch-oss
+  sourceRepository: github.com/elastic/elasticsearch-docker
+  repository: docker.elastic.co/elasticsearch/elasticsearch-oss
+  tag: "6.7.1"
 - name: loki
   sourceRepository: github.com/grafana/loki
   repository: grafana/loki
