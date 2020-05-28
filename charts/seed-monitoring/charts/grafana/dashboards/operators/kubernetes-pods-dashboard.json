@@ -449,6 +449,32 @@
         "align": false,
         "alignLevel": null
       }
+    },
+    {
+      "datasource": "loki",
+      "gridPos": {
+        "h": 21,
+        "w": 24,
+        "x": 0,
+        "y": 28
+      },
+      "id": 6,
+      "maxDataPoints": "",
+      "options": {
+        "showTime": true,
+        "sortOrder": "Descending"
+      },
+      "repeat": null,
+      "targets": [
+        {
+          "expr": "{pod_name=~\"$pod\", container_name=~\"$container\"}",
+          "refId": "A"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Pod Logs",
+      "type": "logs"
     }
   ],
   "refresh": "30s",
