@@ -319,7 +319,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "max(kube_statefulset_replicas{statefulset=\"$statefulset_name\"}) without (instance, pod)",
+          "expr": "max(kube_statefulset_replicas{statefulset=\"$statefulset_name\"})",
           "format": "time_series",
           "intervalFactor": 2,
           "metric": "kube_statefulset_replicas",
@@ -403,7 +403,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "min(kube_statefulset_status_replicas_ready{statefulset=\"$statefulset_name\"}) without (instance, pod)",
+          "expr": "min(kube_statefulset_status_replicas_ready{statefulset=\"$statefulset_name\"})",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "",
@@ -487,7 +487,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "max(kube_statefulset_status_observed_generation{statefulset=\"$statefulset_name\"}) without (instance, pod)",
+          "expr": "max(kube_statefulset_status_observed_generation{statefulset=\"$statefulset_name\"})",
           "intervalFactor": 2,
           "legendFormat": "",
           "refId": "A",
@@ -570,7 +570,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "max(kube_statefulset_metadata_generation{statefulset=\"$statefulset_name\"}) without (instance, pod)",
+          "expr": "max(kube_statefulset_metadata_generation{statefulset=\"$statefulset_name\"})",
           "intervalFactor": 2,
           "legendFormat": "",
           "refId": "A",
@@ -631,28 +631,28 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "max(kube_statefulset_status_replicas_ready{statefulset=\"$statefulset_name\"}) without (instance, pod)",
+          "expr": "max(kube_statefulset_status_replicas_ready{statefulset=\"$statefulset_name\"})",
           "intervalFactor": 2,
           "legendFormat": "ready",
           "refId": "A",
           "step": 40
         },
         {
-          "expr": "min(kube_statefulset_status_replicas_current{statefulset=\"$statefulset_name\"}) without (instance, pod)",
+          "expr": "min(kube_statefulset_status_replicas_current{statefulset=\"$statefulset_name\"})",
           "intervalFactor": 2,
           "legendFormat": "current",
           "refId": "B",
           "step": 40
         },
         {
-          "expr": "min(kube_statefulset_status_replicas_updated{statefulset=\"$statefulset_name\"}) without (instance, pod)",
+          "expr": "min(kube_statefulset_status_replicas_updated{statefulset=\"$statefulset_name\"})",
           "intervalFactor": 2,
           "legendFormat": "updated",
           "refId": "D",
           "step": 40
         },
         {
-          "expr": "max(kube_statefulset_replicas{statefulset=\"$statefulset_name\"}) without (instance, pod)",
+          "expr": "max(kube_statefulset_replicas{statefulset=\"$statefulset_name\"})",
           "intervalFactor": 2,
           "legendFormat": "desired",
           "refId": "E",
