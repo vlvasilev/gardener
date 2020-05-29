@@ -27,13 +27,13 @@ tracing:
 livenessProbe:
   httpGet:
     path: /ready
-    port: http-metrics
+    port: metrics
   initialDelaySeconds: 45
 
 readinessProbe:
   httpGet:
     path: /ready
-    port: http-metrics
+    port: metrics
   initialDelaySeconds: 45
 
 replicas: 1
