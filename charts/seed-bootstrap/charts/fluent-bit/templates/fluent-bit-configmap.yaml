@@ -341,6 +341,20 @@ data:
         Reserve_Data        True
 
     [FILTER]
+        Name                parser
+        Match               kubernetes.*dns-controller-manager*external-dns-management*
+        Key_Name            log
+        Parser              gsacParser
+        Reserve_Data        True
+
+    [FILTER]
+        Name                parser
+        Match               kubernetes.*gardener-extension*gardener-extension*
+        Key_Name            log
+        Parser              extensionShootParser
+        Reserve_Data        True
+
+    [FILTER]
         Name                kubernetes
         Match               kubernetes.*
         Kube_Tag_Prefix     kubernetes.var.log.containers.
@@ -517,6 +531,13 @@ data:
         Name        addonmanagerParser
         Format      regex
         Regex       ^(?<severity>[A-Z]+):\s(?<log>.*)
+
+    [PARSER]
+        Name        extensionShootParser
+        Format      regex
+        Regex       ^{"level":"(?<severity>\w+)","ts":"(?<time>\d{4}-\d{2}-\d{2}[Tt].*[zZ])","logger":"(?<source>[^\s]*?)"msg":"(?<log>.*)
+        Time_Key    time
+        Time_Format %Y-%m-%dT%H:%M:%S.%L
 
 {{ if .Values.extensions.parsers }}
 {{- toString .Values.extensions.parsers | indent 4 }}
