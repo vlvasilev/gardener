@@ -15,6 +15,7 @@ spec:
   template:
     metadata:
       labels:
+        networking.gardener.cloud/from-prometheus: allowed
 {{ toYaml .Values.labels | indent 8 }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/loki-configmap.yaml") . | sha256sum }}
@@ -36,7 +37,7 @@ spec:
             - name: loki
               mountPath: "/data"
           ports:
-            - name: http-metrics
+            - name: metrics
               containerPort: {{ .Values.service.port }}
               protocol: TCP
           livenessProbe:
