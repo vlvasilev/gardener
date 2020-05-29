@@ -12,7 +12,7 @@ spec:
   ports:
   - port: {{ .Values.service.port }}
     protocol: TCP
-    name: http-metrics
-    targetPort: http-metrics
+    name: metrics
+    targetPort: metrics
   selector:
 {{ toYaml .Values.labels | indent 4 }}
