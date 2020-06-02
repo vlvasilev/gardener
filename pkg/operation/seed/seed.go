@@ -18,10 +18,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/gardener/gardener/pkg/operation/botanist/component"
-	"github.com/gardener/gardener/pkg/operation/seed/istio"
 	"path/filepath"
 	"strings"
+
+	"github.com/gardener/gardener/pkg/operation/botanist/component"
+	"github.com/gardener/gardener/pkg/operation/seed/istio"
 
 	gardencorev1beta1 "github.com/gardener/gardener/pkg/apis/core/v1beta1"
 	v1beta1constants "github.com/gardener/gardener/pkg/apis/core/v1beta1/constants"
@@ -173,9 +174,6 @@ const (
 
 	prometheusPrefix = "p-seed"
 	prometheusTLS    = "aggregate-prometheus-tls"
-
-	kibanaPrefix = "k-seed"
-	kibanaTLS    = "kibana-tls"
 )
 
 // generateWantedSecrets returns a list of Secret configuration objects satisfying the secret config intface,
@@ -227,9 +225,7 @@ func generateWantedSecrets(seed *Seed, certificateAuthorities map[string]*secret
 	}
 
 	// Logging feature gate
-	if gardenletfeatures.FeatureGate.Enabled(features.Logging) {
-		//TODO: Deploy here any secrets related to logging
-	}
+	//TODO: Deploy here any secrets related to logging
 
 	return secretList, nil
 }
@@ -247,11 +243,11 @@ func deployCertificates(seed *Seed, k8sSeedClient kubernetes.Interface, existing
 		return nil, err
 	}
 
-	// Only necessary to renew certificates for Grafana, Kibana, Prometheus
+	// Only necessary to renew certificates for Grafana, Prometheus
 	// TODO: (timuthy) remove in future version.
 	var (
 		renewedLabel = "cert.gardener.cloud/renewed-endpoint"
-		browserCerts = sets.NewString(grafanaTLS, kibanaTLS, prometheusTLS)
+		browserCerts = sets.NewString(grafanaTLS, prometheusTLS)
 	)
 	for name, secret := range existingSecretsMap {
 		_, ok := secret.Labels[renewedLabel]
@@ -268,7 +264,7 @@ func deployCertificates(seed *Seed, k8sSeedClient kubernetes.Interface, existing
 		return nil, err
 	}
 
-	// Only necessary to renew certificates for Grafana, Kibana, Prometheus
+	// Only necessary to renew certificates for Grafana, Prometheus
 	// TODO: (timuthy) remove in future version.
 	for name, secret := range secrets {
 		_, ok := secret.Labels[renewedLabel]
@@ -672,7 +668,7 @@ func DesiredExcessCapacity() int {
 
 // GetIngressFQDNDeprecated returns the fully qualified domain name of ingress sub-resource for the Seed cluster. The
 // end result is '<subDomain>.<shootName>.<projectName>.<seed-ingress-domain>'.
-// Only necessary to renew certificates for Alertmanager, Grafana, Kibana, Prometheus
+// Only necessary to renew certificates for Alertmanager, Grafana, Prometheus
 // TODO: (timuthy) remove in future version.
 func (s *Seed) GetIngressFQDNDeprecated(subDomain, shootName, projectName string) string {
 	if shootName == "" {
