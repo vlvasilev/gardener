@@ -6,7 +6,7 @@ require (
 	github.com/Masterminds/semver v1.5.0
 	github.com/ahmetb/gen-crd-api-reference-docs v0.1.5
 	github.com/coreos/etcd v3.3.17+incompatible
-	github.com/coreos/go-systemd v0.0.0-20190719114852-fd7a80b32e1f
+	github.com/coreos/go-systemd v0.0.0-20191104093116-d3cd4ed1dbcf
 	github.com/gardener/etcd-druid v0.3.0
 	github.com/gardener/external-dns-management v0.7.7
 	github.com/gardener/gardener-resource-manager v0.10.0
@@ -23,11 +23,11 @@ require (
 	github.com/huandu/xstrings v1.3.1
 	github.com/json-iterator/go v1.1.9
 	github.com/mholt/archiver v3.1.1+incompatible
-	github.com/onsi/ginkgo v1.10.1
-	github.com/onsi/gomega v1.7.0
+	github.com/onsi/ginkgo v1.10.3
+	github.com/onsi/gomega v1.7.1
 	github.com/pkg/errors v0.9.1
-	github.com/prometheus/client_golang v1.3.0
-	github.com/prometheus/common v0.6.0
+	github.com/prometheus/client_golang v1.5.0
+	github.com/prometheus/common v0.9.1
 	github.com/robfig/cron v1.2.0
 	github.com/sirupsen/logrus v1.4.2
 	github.com/spf13/cobra v0.0.6
@@ -35,7 +35,7 @@ require (
 	github.com/spf13/viper v1.6.1
 	go.uber.org/zap v1.13.0
 	golang.org/x/crypto v0.0.0-20200220183623-bac4c82f6975
-	golang.org/x/lint v0.0.0-20191125180803-fdd1cda4f05f
+	golang.org/x/lint v0.0.0-20200130185559-910be7a94367
 	golang.org/x/tools v0.0.0-20200422205258-72e4a01eba43 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.0.1
 	google.golang.org/grpc v1.26.0
@@ -45,7 +45,7 @@ require (
 	k8s.io/apimachinery v0.17.0
 	k8s.io/apiserver v0.16.8
 	k8s.io/autoscaler v0.0.0-20190805135949-100e91ba756e
-	k8s.io/client-go v11.0.1-0.20190409021438-1a26190bd76a+incompatible
+	k8s.io/client-go v12.0.0+incompatible
 	k8s.io/cluster-bootstrap v0.16.8
 	k8s.io/code-generator v0.16.8
 	k8s.io/component-base v0.16.8

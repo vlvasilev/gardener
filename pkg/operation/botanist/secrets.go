@@ -705,12 +705,12 @@ func (b *Botanist) DeploySecrets(ctx context.Context) error {
 		return err
 	}
 
-	// Only necessary to renew certificates for Alertmanager, Grafana, Kibana, Prometheus
+	// Only necessary to renew certificates for Alertmanager, Grafana, Prometheus
 	// TODO: (timuthy) remove in future version.
 	var (
 		oldRenewedLabel = "cert.gardener.cloud/renewed"
 		renewedLabel    = "cert.gardener.cloud/renewed-endpoint"
-		browserCerts    = sets.NewString(common.GrafanaTLS, common.KibanaTLS, common.PrometheusTLS, common.AlertManagerTLS)
+		browserCerts    = sets.NewString(common.GrafanaTLS, common.PrometheusTLS, common.AlertManagerTLS)
 	)
 	for name, secret := range existingSecretsMap {
 		_, ok := secret.Labels[renewedLabel]
@@ -733,7 +733,7 @@ func (b *Botanist) DeploySecrets(ctx context.Context) error {
 		return err
 	}
 
-	// Only necessary to renew certificates for Alertmanager, Grafana, Kibana, Prometheus
+	// Only necessary to renew certificates for Alertmanager, Grafana, Prometheus
 	// TODO: (timuthy) remove in future version.
 	for name, secret := range b.Secrets {
 		_, ok := secret.Labels[renewedLabel]
@@ -990,7 +990,6 @@ const (
 	secretSuffixKubeConfig = "kubeconfig"
 	secretSuffixSSHKeyPair = v1beta1constants.SecretNameSSHKeyPair
 	secretSuffixMonitoring = "monitoring"
-	secretSuffixLogging    = "logging"
 )
 
 func computeProjectSecretName(shootName, suffix string) string {

@@ -3,8 +3,8 @@
 By default, Gardener deploys a central Prometheus, AlertManager, and Grafana instance into the `garden` namespace of all seed clusters.
 Additionally, as part of the shoot reconciliation flow, it deploys a shoot-specific Prometheus, Grafana (and, if configured, an AlertManager) into the shoot namespace next to the other control plane components.
 
-Configurable by the `Logging` feature gate in the `gardenlet` configuration it might also deploy a central fluentd/fluent-bit, ElasticSearch, and Kibana deployment into the `garden` namespace of all seed clusters.
-Additionally, as part of the shoot reconciliation flow, it might deploy a shoot-specific ElasticSearch and Kibana into the shoot namespace next to the other control plane components.
+Configurable by the `Logging` feature gate in the `gardenlet` configuration it might also deploy a central fluent-bit and Loki Statefulset into the `garden` namespace of all seed clusters.
+Additionally, as part of the shoot reconciliation flow, it might deploy a shoot-specific Loki into the shoot namespace next to the other control plane components.
 
 ## Monitoring
 
@@ -90,23 +90,23 @@ data:
 
 ## Logging
 
-The central fluentd/fluent-bit instances in the `garden` namespace are parsing the logs from all containers in the seed cluster.
+The central fluent-bit instances in the `garden` namespace are parsing the logs from all containers in the seed cluster.
 The shoot-specific instances only extract exactly those logs for the pods of the control plane they are responsible for.
 This allows to only fetch the logs for the pods once for the whole cluster, and to distribute them afterwards.
 
 Extension controllers might deploy components as part of their reconciliation next to the shoot's control plane.
 Examples for this would be a cloud-controller-manager or CSI controller deployments.
-In some cases, the extensions want to submit logging parse configuration for these components such that their logs can be scraped by Gardener's fluentd/fluent-bit deployment(s), and later be visible in the Kibana dashboards.
+In some cases, the extensions want to submit logging parse configuration for these components such that their logs can be scraped by Gardener's fluent-bit deamonset(s), and later be visible in the Grafana dashboards.
 
-:warning: As their is only the central fluentd/fluent-bit deployment (and not a shoot-specific deployment like in the case of monitoring, see above) the logging parse configuration must be only provided once and **not per shoot namespace**.
-Also, as fluentd/fluent-bit parses the logs based on the container name you should make sure that the container names inside your provider-specific pods are prefixed with your extension name.
+:warning: As their is only the central fluent-bit deamonset (and not a shoot-specific deployment like in the case of monitoring, see above) the logging parse configuration must be only provided once and **not per shoot namespace**.
+Also, as fluent-bit parses the logs based on the container name you should make sure that the container names inside your provider-specific pods are prefixed with your extension name.
 
 ### What's the approach to submit logging parse configuration?
 
-Before deploying the central fluentd/fluent-bit instances into the `garden` namespace Gardener will read all `ConfigMap`s in the `garden` which are labeled with `extensions.gardener.cloud/configuration=logging`.
+Before deploying the central fluent-bit instances into the `garden` namespace Gardener will read all `ConfigMap`s in the `garden` which are labeled with `extensions.gardener.cloud/configuration=logging`.
 Such `ConfigMap`s may contain one fields in their `data`:
 
-* `filter-kubernetes.conf`: This field contains fluentd/fluent-bit configuration for how to parse the container logs.
+* `filter-kubernetes.conf`: This field contains fluent-bit configuration for how to parse the container logs.
 
 **Example:** The `Worker` controller might deploy a `machine-controller-manager` into the shoot namespace, and it wants to submit some logging parse configuration.
 
