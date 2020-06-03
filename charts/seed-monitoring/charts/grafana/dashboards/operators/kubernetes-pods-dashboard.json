@@ -5,7 +5,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 1,
-  "iteration": 1560849029958,
+  "iteration": 1591170710914,
   "links": [],
   "panels": [
     {
@@ -25,6 +25,7 @@
         "x": 0,
         "y": 0
       },
+      "hiddenSeries": false,
       "id": 1,
       "legend": {
         "alignAsTable": true,
@@ -140,6 +141,7 @@
         "x": 0,
         "y": 7
       },
+      "hiddenSeries": false,
       "id": 2,
       "legend": {
         "alignAsTable": true,
@@ -254,6 +256,7 @@
         "x": 0,
         "y": 14
       },
+      "hiddenSeries": false,
       "id": 3,
       "legend": {
         "alignAsTable": true,
@@ -357,6 +360,7 @@
         "x": 0,
         "y": 21
       },
+      "hiddenSeries": false,
       "id": 4,
       "legend": {
         "alignAsTable": true,
@@ -461,13 +465,15 @@
       "id": 6,
       "maxDataPoints": "",
       "options": {
+        "showLabels": false,
         "showTime": true,
-        "sortOrder": "Descending"
+        "sortOrder": "Descending",
+        "wrapLogMessage": false
       },
       "repeat": null,
       "targets": [
         {
-          "expr": "{pod_name=~\"$pod\", container_name=~\"$container\"}",
+          "expr": "{pod_name=~\"$pod\", container_name=~\"$container\"} |~ \"$search\"",
           "refId": "A"
         }
       ],
@@ -478,7 +484,7 @@
     }
   ],
   "refresh": "30s",
-  "schemaVersion": 19,
+  "schemaVersion": 25,
   "style": "dark",
   "tags": [
     "kubernetes",
@@ -522,6 +528,11 @@
       },
       {
         "allValue": null,
+        "current": {
+          "selected": false,
+          "text": "calico-node-6xhv9",
+          "value": "calico-node-6xhv9"
+        },
         "datasource": "prometheus",
         "definition": "",
         "hide": 0,
@@ -544,6 +555,7 @@
       {
         "allValue": ".*",
         "current": {
+          "selected": false,
           "text": "All",
           "value": "$__all"
         },
@@ -565,6 +577,26 @@
         "tagsQuery": "",
         "type": "query",
         "useTags": false
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "",
+          "value": ""
+        },
+        "hide": 0,
+        "label": "Search",
+        "name": "search",
+        "options": [
+          {
+            "selected": true,
+            "text": "",
+            "value": ""
+          }
+        ],
+        "query": "",
+        "skipUrlSync": false,
+        "type": "textbox"
       }
     ]
   },
@@ -574,7 +606,6 @@
   },
   "timepicker": {
     "refresh_intervals": [
-      "5s",
       "10s",
       "30s",
       "1m",
