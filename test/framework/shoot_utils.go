@@ -52,7 +52,6 @@ func (f *ShootFramework) GetLokiLogs(ctx context.Context, lokiNamespace, podName
 		"role": "logging",
 	}))
 
-	//	now := time.Now()
 	query := fmt.Sprintf("{app=\"%s\"}", podName)
 
 	command := fmt.Sprintf("wget 'http://localhost:%d/loki/api/v1/query_range' -O- --post-data='query=%s'", lokiPort, query)

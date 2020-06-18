@@ -117,13 +117,6 @@ data:
 
     [FILTER]
         Name                parser
-        Match               kubernetes.*cloud-controller-manager*cloud-controller-manager*
-        Key_Name            log
-        Parser              kubeapiserverParser
-        Reserve_Data        True
-
-    [FILTER]
-        Name                parser
         Match               kubernetes.*kube-scheduler*cloud-kube-scheduler*
         Key_Name            log
         Parser              kubeapiserverParser
@@ -230,13 +223,6 @@ data:
 
     [FILTER]
         Name                parser
-        Match               kubernetes.*curator*
-        Key_Name            log
-        Parser              curatorParser
-        Reserve_Data        True
-
-    [FILTER]
-        Name                parser
         Match               kubernetes.*gardener-seed-admission-controller*gardener-seed-admission-controller*
         Key_Name            log
         Parser              gsacParser
@@ -251,13 +237,6 @@ data:
 
     [FILTER]
         Name                parser
-        Match               kubernetes.*daily-curator*curator*
-        Key_Name            log
-        Parser              curatorParser
-        Reserve_Data        True
-
-    [FILTER]
-        Name                parser
         Match               kubernetes.*grafana*grafana*
         Key_Name            log
         Parser              grafanaParser
@@ -268,90 +247,6 @@ data:
         Match               kubernetes.*gardener-resource-manager*gardener-resource-manager*
         Key_Name            log
         Parser              addonmanagerParser
-        Reserve_Data        True
-
-    [FILTER]
-        Name                parser
-        Match               kubernetes.*dependency-watchdog*dependency-watchdog*
-        Key_Name            log
-        Parser              kubeapiserverParser
-        Reserve_Data        True
-
-    [FILTER]
-        Name                parser
-        Match               kubernetes.*hvpa-controller*hvpa-controller*
-        Key_Name            log
-        Parser              kubeapiserverParser
-        Reserve_Data        True
-
-    [FILTER]
-        Name                parser
-        Match               kubernetes.*node-problem-detector*node-problem-detector*
-        Key_Name            log
-        Parser              kubeapiserverParser
-        Reserve_Data        True
-
-    [FILTER]
-        Name                parser
-        Match               kubernetes.*vpa-exporter*exporter*
-        Key_Name            log
-        Parser              kubeapiserverParser
-        Reserve_Data        True
-
-    [FILTER]
-        Name                parser
-        Match               kubernetes.*vpa-updater*updater*
-        Key_Name            log
-        Parser              kubeapiserverParser
-        Reserve_Data        True
-
-    [FILTER]
-        Name                parser
-        Match               kubernetes.*vpa-recommender*recommender*
-        Key_Name            log
-        Parser              kubeapiserverParser
-        Reserve_Data        True
-
-    [FILTER]
-        Name                parser
-        Match               kubernetes.*catalog-catalog-apiserver*apiserver*
-        Key_Name            log
-        Parser              kubeapiserverParser
-        Reserve_Data        True
-
-    [FILTER]
-        Name                parser
-        Match               kubernetes.*catalog-catalog-controller-manager*controller-manager*
-        Key_Name            log
-        Parser              kubeapiserverParser
-        Reserve_Data        True
-
-    [FILTER]
-        Name                parser
-        Match               kubernetes.*etcd-catalog*etcd*
-        Key_Name            log
-        Parser              kubeapiserverParser
-        Reserve_Data        True
-
-    [FILTER]
-        Name                parser
-        Match               kubernetes.*machine-controller-manager*machine-controller-manager*
-        Key_Name            log
-        Parser              kubeapiserverParser
-        Reserve_Data        True
-
-    [FILTER]
-        Name                parser
-        Match               kubernetes.*dns-controller-manager*external-dns-management*
-        Key_Name            log
-        Parser              gsacParser
-        Reserve_Data        True
-
-    [FILTER]
-        Name                parser
-        Match               kubernetes.*gardener-extension*gardener-extension*
-        Key_Name            log
-        Parser              extensionShootParser
         Reserve_Data        True
 
     [FILTER]
@@ -527,12 +422,6 @@ data:
         Format      regex
         Regex       ^(?<severity>[A-Z]+):\s(?<log>.*)
 
-    [PARSER]
-        Name        extensionShootParser
-        Format      regex
-        Regex       ^{"level":"(?<severity>\w+)","ts":"(?<time>\d{4}-\d{2}-\d{2}[Tt].*[zZ])","logger":"(?<source>[^\s]*?)"msg":"(?<log>.*)
-        Time_Key    time
-        Time_Format %Y-%m-%dT%H:%M:%S.%L
 
 {{ if .Values.extensions.parsers }}
 {{- toString .Values.extensions.parsers | indent 4 }}
@@ -594,7 +483,8 @@ data:
         "container_name": "container_name",
         "pod_name": "pod_name"
       },
-      "type": "user"
+      "type": "user",
+      "severity": "severity"
     }
 
   systemd_label_map.json: |-
