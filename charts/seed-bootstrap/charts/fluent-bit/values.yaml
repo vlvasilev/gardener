@@ -6,13 +6,16 @@ global:
       role: logging
   images:
     fluent-bit: image-repository:image-tag
-
+    fluent-bit-plugin-installer: image-repository:image-tag
+    
 labels:
   gardener.cloud/role: logging
   app: fluent-bit
   role: logging
 ports:
   metrics: 2020
+extensions:
+  filters: ""
+  parsers: ""
 
-additionalFilters: ""
-additionalParsers: ""
+fluentBitConfigurationsOverwrites: {}
