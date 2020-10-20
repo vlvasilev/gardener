@@ -32,7 +32,6 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
-	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/util/retry"
 	"k8s.io/utils/pointer"
@@ -237,43 +236,43 @@ var _ = ginkgo.Describe("Seed logging testing", func() {
 		framework.ExpectNoError(err)
 
 	}, getLogsFromLokiTimeout, framework.WithCAfterTest(func(ctx context.Context) {
-		ginkgo.By("Cleaning up logger app resources")
-		for i := 0; i < numberOfSimulatedClusters; i++ {
-			shootNamespace := getShootNamesapce(i)
-			loggerDeploymentToDelete := &appsv1.Deployment{
-				ObjectMeta: metav1.ObjectMeta{
-					Namespace: shootNamespace.Name,
-					Name:      logger,
-				},
-			}
-			err := kutil.DeleteObject(ctx, f.ShootClient.Client(), loggerDeploymentToDelete)
-			framework.ExpectNoError(err)
+		// ginkgo.By("Cleaning up logger app resources")
+		// for i := 0; i < numberOfSimulatedClusters; i++ {
+		// 	shootNamespace := getShootNamesapce(i)
+		// 	loggerDeploymentToDelete := &appsv1.Deployment{
+		// 		ObjectMeta: metav1.ObjectMeta{
+		// 			Namespace: shootNamespace.Name,
+		// 			Name:      logger,
+		// 		},
+		// 	}
+		// 	err := kutil.DeleteObject(ctx, f.ShootClient.Client(), loggerDeploymentToDelete)
+		// 	framework.ExpectNoError(err)
 
-			cluster := getCluster(i)
-			err = kutil.DeleteObject(ctx, f.ShootClient.Client(), cluster)
-			framework.ExpectNoError(err)
+		// 	cluster := getCluster(i)
+		// 	err = kutil.DeleteObject(ctx, f.ShootClient.Client(), cluster)
+		// 	framework.ExpectNoError(err)
 
-			lokiShootService := getLokiShootService(i)
-			err = kutil.DeleteObject(ctx, f.ShootClient.Client(), lokiShootService)
-			framework.ExpectNoError(err)
+		// 	lokiShootService := getLokiShootService(i)
+		// 	err = kutil.DeleteObject(ctx, f.ShootClient.Client(), lokiShootService)
+		// 	framework.ExpectNoError(err)
 
-			err = kutil.DeleteObject(ctx, f.ShootClient.Client(), shootNamespace)
-			framework.ExpectNoError(err)
-		}
+		// 	err = kutil.DeleteObject(ctx, f.ShootClient.Client(), shootNamespace)
+		// 	framework.ExpectNoError(err)
+		// }
 
-		ginkgo.By("Cleaning up garden namespace")
-		objectsToDelete := []runtime.Object{
-			fluentBit,
-			fluentBitConfMap,
-			fluentBitService,
-			fluentBitClusterRole,
-			fluentBitClusterRoleBinding,
-			fluentBitServiceAccount,
-			gardenNamespace,
-		}
-		for _, object := range objectsToDelete {
-			err := kutil.DeleteObject(ctx, f.ShootClient.Client(), object)
-			framework.ExpectNoError(err)
-		}
+		// ginkgo.By("Cleaning up garden namespace")
+		// objectsToDelete := []runtime.Object{
+		// 	fluentBit,
+		// 	fluentBitConfMap,
+		// 	fluentBitService,
+		// 	fluentBitClusterRole,
+		// 	fluentBitClusterRoleBinding,
+		// 	fluentBitServiceAccount,
+		// 	gardenNamespace,
+		// }
+		// for _, object := range objectsToDelete {
+		// 	err := kutil.DeleteObject(ctx, f.ShootClient.Client(), object)
+		// 	framework.ExpectNoError(err)
+		// }
 	}, loggerDeploymentCleanupTimeout))
 })
