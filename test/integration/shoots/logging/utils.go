@@ -63,7 +63,7 @@ func checkRequiredResources(ctx context.Context, k8sSeedClient kubernetes.Interf
 }
 
 // WaitUntilLokiReceivesLogs waits until the loki instance in <lokiNamespace> receives <expected> logs from <key>, <value>
-func WaitUntilLokiReceivesLogs(ctx context.Context, interval time.Duration, f *framework.ShootFramework, lokiNamespace, key, value string, expected int, client kubernetes.Interface) error {
+func WaitUntilLokiReceivesLogs(ctx context.Context, interval time.Duration, f *framework.ShootFramework, lokiNamespace, key, value string, expected, delta int, client kubernetes.Interface) error {
 	return retry.Until(ctx, interval, func(ctx context.Context) (done bool, err error) {
 		search, err := f.GetLokiLogs(ctx, lokiNamespace, key, value, client)
 		if err != nil {
@@ -85,7 +85,7 @@ func WaitUntilLokiReceivesLogs(ctx context.Context, interval time.Duration, f *f
 		if expected > actual {
 			f.Logger.Infof("Waiting to receive %d logs, currently received %d", expected, actual)
 			return retry.MinorError(fmt.Errorf("received only %d/%d logs", actual, expected))
-		} else if expected < actual {
+		} else if expected > actual+delta {
 			return retry.SevereError(fmt.Errorf("expected to receive %d logs but was %d", expected, actual))
 		}
 

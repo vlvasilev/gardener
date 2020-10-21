@@ -28,11 +28,13 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
+	schedulingv1 "k8s.io/api/scheduling/v1"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/util/retry"
 	"k8s.io/utils/pointer"
 )
@@ -65,6 +67,7 @@ var _ = ginkgo.Describe("Seed logging testing", func() {
 	fluentBitClusterRole := &rbacv1.ClusterRole{}
 	fluentBitClusterRoleBinding := &rbacv1.ClusterRoleBinding{}
 	fluentBitServiceAccount := &corev1.ServiceAccount{}
+	fluentBitPriorityClass := &schedulingv1.PriorityClass{}
 	clusterCRD := &apiextensionsv1.CustomResourceDefinition{}
 	lokiSts := &appsv1.StatefulSet{}
 	lokiServiceAccount := &corev1.ServiceAccount{}
@@ -91,6 +94,8 @@ var _ = ginkgo.Describe("Seed logging testing", func() {
 		//Get the Fluent-Bit ServiceAccount from the seed
 		err = f.SeedClient.Client().Get(ctx, types.NamespacedName{Namespace: v1beta1constants.GardenNamespace, Name: fluentBitName}, fluentBitServiceAccount)
 		framework.ExpectNoError(err)
+		//Get the Fluent-Bit PriorityClass from the seed
+		framework.ExpectNoError(f.SeedClient.Client().Get(ctx, types.NamespacedName{Namespace: v1beta1constants.GardenNamespace, Name: fluentBitName}, fluentBitPriorityClass))
 		//Get the cluster CRD from the seed
 		err = f.SeedClient.Client().Get(ctx, types.NamespacedName{Namespace: "", Name: "clusters.extensions.gardener.cloud"}, clusterCRD)
 		framework.ExpectNoError(err)
@@ -126,9 +131,9 @@ var _ = ginkgo.Describe("Seed logging testing", func() {
 		lokiService.Spec.ClusterIP = ""
 		err = create(ctx, f.ShootClient.Client(), lokiService)
 		framework.ExpectNoError(err)
-		// Remove the Loki PVC as it is no needed for the test
+		//Remove the Loki PVC as it is no needed for the test
 		lokiSts.Spec.VolumeClaimTemplates = nil
-		// Instead use an empty dir volume
+		//Instead use an empty dir volume
 		lokiDataVolumeSize := resource.MustParse("500Mi")
 		lokiDataVolume := corev1.Volume{
 			Name: "loki",
@@ -172,20 +177,79 @@ var _ = ginkgo.Describe("Seed logging testing", func() {
 		ginkgo.By("Deploy the fluent-bit RBAC")
 		err = create(ctx, f.ShootClient.Client(), fluentBitServiceAccount)
 		framework.ExpectNoError(err)
+		framework.ExpectNoError(create(ctx, f.ShootClient.Client(), fluentBitPriorityClass))
 		err = create(ctx, f.ShootClient.Client(), fluentBitClusterRole)
 		framework.ExpectNoError(err)
 		err = create(ctx, f.ShootClient.Client(), fluentBitClusterRoleBinding)
 		framework.ExpectNoError(err)
 
-		ginkgo.By("Deploy the fluent-bit DaemonSet")
-		err = create(ctx, f.ShootClient.Client(), fluentBitConfMap)
+		ginkgo.By("Delete old fluent-bit data base")
+		err = f.RenderAndDeployTemplate(ctx, f.ShootClient, "privileged_pod.yaml.tpl", nil)
 		framework.ExpectNoError(err)
+
+		ginkgo.By("Wait until privileged DaemonSet is ready")
+		err = f.WaitUntilDaemonSetIsRunning(ctx, f.ShootClient.Client(), "privileged", v1beta1constants.GardenNamespace)
+		framework.ExpectNoError(err)
+
+		ginkgo.By("Deploy the fluent-bit DaemonSet")
+		err = f.RenderAndDeployTemplate(ctx, f.ShootClient, "fluent-bit-config-map.yaml.tpl", nil)
+		framework.ExpectNoError(err)
+		//err = create(ctx, f.ShootClient.Client(), fluentBitConfMap)
+		//framework.ExpectNoError(err)
+		// //            cpu: 300m
+		// memory: 400Mi
+		// requests:
+		//   cpu: 150m
+		//   memory: 150Mi
+		//fluentBit.Spec.Template.Spec.InitContainers = nil
+		for container := range fluentBit.Spec.Template.Spec.Containers {
+			if fluentBit.Spec.Template.Spec.Containers[container].Name == "fluent-bit" {
+				fluentBit.Spec.Template.Spec.Containers[container].Image = "fluent/fluent-bit:1.7.0-dev-6"
+				s := fluentBit.Spec.Template.Spec.Containers[container].VolumeMounts
+				for v := range s {
+					if s[v].Name == "plugins" {
+						//fluentBit.Spec.Template.Spec.Containers[container].VolumeMounts = append(s[:v], s[v+1:]...)
+						fluentBit.Spec.Template.Spec.Containers[container].VolumeMounts = append(s, corev1.VolumeMount{
+							Name:      "log",
+							MountPath: "/log",
+						})
+						fluentBit.Spec.Template.Spec.Volumes = append(fluentBit.Spec.Template.Spec.Volumes, corev1.Volume{
+							Name: "log",
+							VolumeSource: corev1.VolumeSource{
+								EmptyDir: &corev1.EmptyDirVolumeSource{},
+							},
+						})
+						break
+					}
+				}
+				fluentBit.Spec.Template.Spec.Containers[container].ReadinessProbe = &corev1.Probe{
+					Handler: corev1.Handler{
+						HTTPGet: &corev1.HTTPGetAction{
+							Path: "/api/v1/metrics/prometheus",
+							Port: intstr.FromInt(2020),
+						},
+					},
+				}
+				// fluentBit.Spec.Template.Spec.Containers[container].Resources = corev1.ResourceRequirements{
+				// 	Requests: corev1.ResourceList{
+				// 		corev1.ResourceCPU:    resource.MustParse("500m"),
+				// 		corev1.ResourceMemory: resource.MustParse("150Mi"),
+				// 	},
+				// 	Limits: corev1.ResourceList{
+				// 		corev1.ResourceCPU:    resource.MustParse("500m"),
+				// 		corev1.ResourceMemory: resource.MustParse("400Mi"),
+				// 	},
+				// }
+			}
+		}
 		err = create(ctx, f.ShootClient.Client(), fluentBit)
 		framework.ExpectNoError(err)
 
 		ginkgo.By("Wait until fluent-bit DaemonSet is ready")
 		err = f.WaitUntilDaemonSetIsRunning(ctx, f.ShootClient.Client(), fluentBitName, v1beta1constants.GardenNamespace)
 		framework.ExpectNoError(err)
+
+		//time.Sleep(time.Minute)
 
 		ginkgo.By("Deploy the simulated cluster and shoot controlplane namespaces")
 		for i := 0; i < numberOfSimulatedClusters; i++ {
@@ -232,10 +296,19 @@ var _ = ginkgo.Describe("Seed logging testing", func() {
 		}
 
 		ginkgo.By("Verify loki received logger application logs for all namespaces")
-		err = WaitUntilLokiReceivesLogs(ctx, 1*time.Minute, f, v1beta1constants.GardenNamespace, "pod_name", logger, logsCount*numberOfSimulatedClusters, f.ShootClient)
+		err = WaitUntilLokiReceivesLogs(ctx, 1*time.Minute, f, v1beta1constants.GardenNamespace, "pod_name", logger, logsCount*numberOfSimulatedClusters, numberOfSimulatedClusters, f.ShootClient)
 		framework.ExpectNoError(err)
 
 	}, getLogsFromLokiTimeout, framework.WithCAfterTest(func(ctx context.Context) {
+		// ginkgo.By("Delete the privileged pod")
+		// privilegedPod := &appsv1.DaemonSet{
+		// 	ObjectMeta: metav1.ObjectMeta{
+		// 		Namespace: "garden",
+		// 		Name:      "privileged",
+		// 	},
+		// }
+		// err := kutil.DeleteObject(ctx, f.ShootClient.Client(), privilegedPod)
+		// framework.ExpectNoError(err)
 		// ginkgo.By("Cleaning up logger app resources")
 		// for i := 0; i < numberOfSimulatedClusters; i++ {
 		// 	shootNamespace := getShootNamesapce(i)
@@ -268,6 +341,7 @@ var _ = ginkgo.Describe("Seed logging testing", func() {
 		// 	fluentBitClusterRole,
 		// 	fluentBitClusterRoleBinding,
 		// 	fluentBitServiceAccount,
+		// 	fluentBitPriorityClass,
 		// 	gardenNamespace,
 		// }
 		// for _, object := range objectsToDelete {

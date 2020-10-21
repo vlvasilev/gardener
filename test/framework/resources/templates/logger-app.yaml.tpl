@@ -31,4 +31,4 @@ spec:
         - name: LOGS_GENERATOR_LINES_TOTAL
           value: "{{ .LogsCount }}"
         - name: LOGS_GENERATOR_DURATION
-          value: 20s
+          value: 90s
