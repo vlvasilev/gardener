@@ -73,6 +73,8 @@ spec:
           readOnly: true
         - name: plugins
           mountPath: /fluent-bit/plugins
+        - name: logs
+          mountPath: /logs
       serviceAccount: fluent-bit
       serviceAccountName: fluent-bit
       automountServiceAccountToken: true
@@ -91,4 +93,6 @@ spec:
         hostPath:
           path: /var/lib/docker/containers
       - name: plugins
+        emptyDir: {}
+      - name: logs
         emptyDir: {}

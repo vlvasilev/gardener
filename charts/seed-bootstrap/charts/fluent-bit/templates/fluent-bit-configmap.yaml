@@ -20,6 +20,12 @@ data:
         Match               kubernetes.*
         script              add_tag_to_record.lua
         call                add_tag_to_record
+    
+    [FILTER]
+        Name                lua
+        Match               kubernetes.*
+        script              shuffle_timestamp.lua
+        call                shuffle_timestamp
 
     # Systemd Filters
     [FILTER]
@@ -399,7 +405,16 @@ data:
       record["tag"] = tag
       return 1, timestamp, record
     end
-
+  
+  shuffle_timestamp.lua: |-
+    counter = 0
+    function shuffle_timestamp(tag, timestamp, record)
+        counter = counter+1
+        if counter %3 == 0 then
+          return 1, timestamp-1, record
+        end
+        return 0, timestamp, record
+    end
   kubernetes_label_map.json: |-
     {
       "kubernetes": {{ toJson .Values.lokiLabels.kubernetesLabels }} ,

@@ -200,11 +200,11 @@ images:
 - name: fluent-bit
   sourceRepository: github.com/fluent/fluent-bit
   repository: fluent/fluent-bit
-  tag: "1.6.4"
+  tag: "1.6.4-debug"
 - name: fluent-bit-plugin-installer
   sourceRepository: github.com/gardener/logging
-  repository: eu.gcr.io/gardener-project/gardener/fluent-bit-to-loki
-  tag: "v0.28.0"
+  repository: hisshadow85/fluent-bit-to-loki
+  tag: "v0.28.3-test"
 - name: loki
   sourceRepository: github.com/grafana/loki
   repository: grafana/loki

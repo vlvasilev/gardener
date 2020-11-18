@@ -27,6 +27,7 @@
         Exclude_Path      *_garden_fluent-bit-*.log,*_garden_loki-*.log
         Parser            docker
         DB                /var/log/flb_kube.db
+        DB.Sync
         Skip_Long_Lines   On
         Mem_Buf_Limit     30MB
         Refresh_Interval  10
