@@ -10,6 +10,10 @@ metadata:
 {{ toYaml .Values.labels | indent 4 }}
 spec:
   replicas: 1
+{{- if .Values.maintenanceWindow }}
+  maintenanceTimeWindow:
+{{ toYaml .Values.maintenanceWindow | indent 4 }}
+{{- end }}
   hpa:
     selector:
       matchLabels:
@@ -44,7 +48,11 @@ spec:
 {{- end }}
     scaleDown:
       updatePolicy:
+{{- if .Values.maintenanceWindow }}
+        updateMode: "MaintenanceWindow"
+{{- else }}
         updateMode: "Auto"
+{{- end }}
 {{- if .Values.hvpa.scaleDownStabilization }}
 {{ toYaml .Values.hvpa.scaleDownStabilization | indent 6 }}
 {{- end }}

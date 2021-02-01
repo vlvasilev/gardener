@@ -385,6 +385,10 @@ func BootstrapCluster(ctx context.Context, k8sGardenClient, k8sSeedClient kubern
 		lokiValues["authEnabled"] = false
 		lokiValues["hvpa"] = map[string]interface{}{
 			"enabled": hvpaEnabled,
+			"maintenanceTimeWindow": map[string]interface{}{
+				"begin": "220000-0000",
+				"end":   "230000-0000",
+			},
 		}
 
 		lokiVpa := &autoscalingv1beta2.VerticalPodAutoscaler{ObjectMeta: metav1.ObjectMeta{Name: "loki-vpa", Namespace: v1beta1constants.GardenNamespace}}

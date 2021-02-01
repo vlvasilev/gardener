@@ -83,7 +83,7 @@ hvpa:
         value: 200M
         percentage: 80
   scaleDownStabilization:
-    stabilizationDuration: "15m"
+    stabilizationDuration: "2h"
     minChange:
       cpu:
         value: "100m"
