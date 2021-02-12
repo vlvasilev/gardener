@@ -573,6 +573,13 @@ func (o *Operation) ComputeAlertManagerHosts() []string {
 	}
 }
 
+// ComputeLokiHosts computes the host for loki.
+func (o *Operation) ComputeLokiHosts() []string {
+	return []string{
+		o.ComputeLokiHost(),
+	}
+}
+
 // ComputeGrafanaOperatorsHost computes the host for users Grafana.
 func (o *Operation) ComputeGrafanaOperatorsHost() string {
 	return o.ComputeIngressHost(common.GrafanaOperatorsPrefix)
@@ -591,6 +598,11 @@ func (o *Operation) ComputeAlertManagerHost() string {
 // ComputePrometheusHost computes the host for prometheus.
 func (o *Operation) ComputePrometheusHost() string {
 	return o.ComputeIngressHost(common.PrometheusPrefix)
+}
+
+// ComputeLokiHost computes the host for loki.
+func (o *Operation) ComputeLokiHost() string {
+	return o.ComputeIngressHost(common.LokiPrefix)
 }
 
 // ComputeIngressHost computes the host for a given prefix.

@@ -24,6 +24,7 @@ import (
 	v1beta1constants "github.com/gardener/gardener/pkg/apis/core/v1beta1/constants"
 	gardencorev1beta1helper "github.com/gardener/gardener/pkg/apis/core/v1beta1/helper"
 	"github.com/gardener/gardener/pkg/operation/botanist/component/konnectivity"
+	"github.com/gardener/gardener/pkg/operation/botanist/component/logging"
 	"github.com/gardener/gardener/pkg/operation/common"
 	"github.com/gardener/gardener/pkg/operation/seed"
 	"github.com/gardener/gardener/pkg/operation/shootsecrets"
@@ -216,6 +217,7 @@ func (b *Botanist) rotateKubeconfigSecrets(ctx context.Context, gardenerResource
 		common.StaticTokenSecretName,
 		common.BasicAuthSecretName,
 		common.KubecfgSecretName,
+		logging.SecretNameKubeRBACProxyKubeconfig,
 	}
 	if b.Shoot.KonnectivityTunnelEnabled {
 		secrets = append(secrets, konnectivity.SecretNameServerKubeconfig)

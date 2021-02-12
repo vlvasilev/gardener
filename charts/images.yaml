@@ -11,7 +11,7 @@ images:
 - name: gardener-seed-admission-controller
   sourceRepository: github.com/gardener/gardener
   repository: eu.gcr.io/gardener-project/gardener/seed-admission-controller
-
+  tag: v1.17.0-dev-dc481f329c85358dff4fa1d0f91be5f8ddc6c310
 # Seed bootstrap
 - name: pause-container
   sourceRepository: github.com/kubernetes/kubernetes/blob/master/build/pause/Dockerfile
@@ -215,6 +215,10 @@ images:
   sourceRepository: github.com/gardener/logging
   repository: eu.gcr.io/gardener-project/gardener/fluent-bit-to-loki
   tag: "v0.34.0"
+- name: promtail
+  sourceRepository: github.com/grafana/loki
+  repository: "docker.io/grafana/promtail"
+  tag: "2.1.0"
 - name: loki
   sourceRepository: github.com/grafana/loki
   repository: grafana/loki
@@ -223,6 +227,10 @@ images:
   sourceRepository: github.com/gardener/logging
   repository: eu.gcr.io/gardener-project/gardener/loki-curator
   tag: "v0.34.0"
+- name: kube-rbac-proxy
+  sourceRepository: https://github.com/brancz/kube-rbac-proxy
+  repository: quay.io/brancz/kube-rbac-proxy
+  tag: v0.8.0
 
 # VPA
 - name: vpa-admission-controller

@@ -11,6 +11,26 @@ spec:
     matchLabels:
 {{ toYaml .Values.labels | indent 6 }}
   ingress:
+{{- if .Values.rbacSidecarEnabled }}
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          role: garden
+      podSelector:
+        matchLabels:
+          app: nginx-ingress
+          component: controller
+    - namespaceSelector:
+        matchLabels:
+          role: kube-system
+      podSelector:
+        matchLabels:
+          app: nginx-ingress
+          component: controller
+    ports:
+    - protocol: TCP
+      port: 8080
+{{- end }}
   - from:
     - podSelector:
         matchLabels:

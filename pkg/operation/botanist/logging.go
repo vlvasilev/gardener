@@ -24,6 +24,7 @@ import (
 	"github.com/gardener/gardener/pkg/client/kubernetes"
 	"github.com/gardener/gardener/pkg/features"
 	gardenletfeatures "github.com/gardener/gardener/pkg/gardenlet/features"
+	"github.com/gardener/gardener/pkg/operation/botanist/component/logging"
 	"github.com/gardener/gardener/pkg/operation/common"
 	kutil "github.com/gardener/gardener/pkg/utils/kubernetes"
 )
@@ -37,14 +38,27 @@ func (b *Botanist) DeploySeedLogging(ctx context.Context) error {
 	images, err := b.InjectSeedSeedImages(map[string]interface{}{},
 		charts.ImageNameLoki,
 		charts.ImageNameLokiCurator,
+		charts.ImageNameKubeRBACKProxy,
 	)
+
 	if err != nil {
 		return err
 	}
 
 	lokiValues := map[string]interface{}{
-		"global":   images,
-		"replicas": b.Shoot.GetReplicas(1),
+		"global":             images,
+		"replicas":           b.Shoot.GetReplicas(1),
+		"rbacSidecarEnabled": true,
+		"ingress": map[string]interface{}{
+			"class": getIngressClass(b.Seed.Info.Spec.Ingress),
+			"hosts": []map[string]interface{}{
+				{
+					"hostName":   b.ComputeLokiHost(),
+					"secretName": common.LokiTLS,
+				},
+			},
+		},
+		"kubeRBACProxyKubeconfigCheckSum": b.CheckSums[logging.SecretNameKubeRBACProxyKubeconfig],
 	}
 
 	hvpaValues := make(map[string]interface{})

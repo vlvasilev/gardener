@@ -14,5 +14,11 @@ spec:
     protocol: TCP
     name: metrics
     targetPort: metrics
+{{- if .Values.rbacSidecarEnabled }}
+  - port: 8080
+    protocol: TCP
+    name: external
+    targetPort: 8080 
+{{- end }}
   selector:
 {{ toYaml .Values.labels | indent 4 }}

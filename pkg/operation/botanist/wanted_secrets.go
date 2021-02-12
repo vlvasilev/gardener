@@ -21,12 +21,15 @@ import (
 	"github.com/gardener/gardener/charts"
 	gardencorev1beta1 "github.com/gardener/gardener/pkg/apis/core/v1beta1"
 	v1beta1constants "github.com/gardener/gardener/pkg/apis/core/v1beta1/constants"
+	"github.com/gardener/gardener/pkg/features"
+	gardenletfeatures "github.com/gardener/gardener/pkg/gardenlet/features"
 	"github.com/gardener/gardener/pkg/operation/botanist/component/clusterautoscaler"
 	"github.com/gardener/gardener/pkg/operation/botanist/component/etcd"
 	"github.com/gardener/gardener/pkg/operation/botanist/component/extensions/operatingsystemconfig/downloader"
 	"github.com/gardener/gardener/pkg/operation/botanist/component/konnectivity"
 	"github.com/gardener/gardener/pkg/operation/botanist/component/kubecontrollermanager"
 	"github.com/gardener/gardener/pkg/operation/botanist/component/kubescheduler"
+	"github.com/gardener/gardener/pkg/operation/botanist/component/logging"
 	"github.com/gardener/gardener/pkg/operation/botanist/component/metricsserver"
 	"github.com/gardener/gardener/pkg/operation/botanist/component/resourcemanager"
 	"github.com/gardener/gardener/pkg/operation/common"
@@ -103,6 +106,16 @@ func (b *Botanist) generateStaticTokenConfig() *secrets.StaticTokenSecretConfig 
 				UserID:   common.KubeAPIServerHealthCheck,
 			},
 		},
+	}
+	if b.Shoot.Purpose != gardencorev1beta1.ShootPurposeTesting || gardenletfeatures.FeatureGate.Enabled(features.Logging) {
+		staticTokenConfig.Tokens[logging.KubeRBACProxyName] = secrets.TokenConfig{
+			Username: logging.KubeRBACProxyUserName,
+			UserID:   logging.KubeRBACProxyUserName,
+		}
+		staticTokenConfig.Tokens[logging.PromtailName] = secrets.TokenConfig{
+			Username: logging.PromtailRBACName,
+			UserID:   logging.PromtailRBACName,
+		}
 	}
 
 	if b.Shoot.KonnectivityTunnelEnabled {
@@ -570,6 +583,7 @@ func (b *Botanist) generateWantedSecretConfigs(basicAuthAPIServer *secrets.Basic
 
 	// Secret definition for kubecfg
 	var kubecfgToken *secrets.Token
+
 	if staticToken != nil {
 		var err error
 		kubecfgToken, err = staticToken.GetTokenForUsername(common.KubecfgUsername)
@@ -592,6 +606,44 @@ func (b *Botanist) generateWantedSecretConfigs(basicAuthAPIServer *secrets.Basic
 			APIServerURL: b.Shoot.ComputeOutOfClusterAPIServerAddress(b.APIServerAddress, false),
 		},
 	})
+
+	// Secret definition for kubeRBACProxy
+	if b.Shoot.Purpose != gardencorev1beta1.ShootPurposeTesting || gardenletfeatures.FeatureGate.Enabled(features.Logging) {
+
+		var kubeRBACToken *secrets.Token
+		if staticToken != nil {
+			var err error
+			kubeRBACToken, err = staticToken.GetTokenForUsername(logging.KubeRBACProxyUserName)
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		secretList = append(secretList, &secrets.ControlPlaneSecretConfig{
+			CertificateSecretConfig: &secrets.CertificateSecretConfig{
+				Name:      logging.SecretNameKubeRBACProxyKubeconfig,
+				SigningCA: certificateAuthorities[v1beta1constants.SecretNameCACluster],
+			},
+			Token: kubeRBACToken,
+
+			KubeConfigRequest: &secrets.KubeConfigRequest{
+				ClusterName:  b.Shoot.SeedNamespace,
+				APIServerURL: b.Shoot.ComputeInClusterAPIServerAddress(true),
+			}},
+			// Secret definition for loki (ingress)
+			&secrets.CertificateSecretConfig{
+				Name: common.LokiTLS,
+
+				CommonName:   b.ComputeLokiHost(),
+				Organization: []string{"gardener.cloud:monitoring:ingress"},
+				DNSNames:     b.ComputeLokiHosts(),
+				IPAddresses:  nil,
+
+				CertType:  secrets.ServerCert,
+				SigningCA: certificateAuthorities[v1beta1constants.SecretNameCACluster],
+				Validity:  &endUserCrtValidity,
+			})
+	}
 
 	// Secret definitions for dependency-watchdog-internal and external probes
 	secretList = append(secretList, &secrets.ControlPlaneSecretConfig{
