@@ -208,6 +208,7 @@ func (b *Builder) Build(ctx context.Context, c client.Client) (*Shoot, error) {
 		},
 		ControlPlane:     &ControlPlane{},
 		SystemComponents: &SystemComponents{},
+		Logging:          &Logging{},
 	}
 
 	// Determine information about external domain for shoot cluster.

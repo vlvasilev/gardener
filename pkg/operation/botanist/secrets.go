@@ -222,6 +222,10 @@ func (b *Botanist) rotateKubeconfigSecrets(ctx context.Context, gardenerResource
 		secrets = append(secrets, konnectivity.SecretNameServerKubeconfig)
 	}
 
+	if b.isShootNodeLoggingActivated() {
+		secrets = append(secrets, common.SecretNameLokiKubeRBACProxyKubeconfig)
+	}
+
 	for _, secretName := range secrets {
 		if err := b.K8sSeedClient.Client().Delete(ctx, &corev1.Secret{ObjectMeta: metav1.ObjectMeta{Name: secretName, Namespace: b.Shoot.SeedNamespace}}); client.IgnoreNotFound(err) != nil {
 			return err
