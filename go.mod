@@ -42,6 +42,7 @@ require (
 	gomodules.xyz/jsonpatch/v2 v2.1.0
 	gonum.org/v1/gonum v0.8.2
 	gopkg.in/yaml.v2 v2.3.0
+	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
 	istio.io/api v0.0.0-20201123152548-197f11e4ea09
 	istio.io/client-go v1.8.1
 	k8s.io/api v0.20.2

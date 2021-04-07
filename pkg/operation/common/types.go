@@ -237,4 +237,6 @@ const (
 	LokiKubeRBACProxyName = "kube-rbac-proxy"
 	// SecretNameLokiKubeRBACProxyKubeconfig is the name for the Loki's kube-rbac-proxy's kubeconfig secret.
 	SecretNameLokiKubeRBACProxyKubeconfig = LokiKubeRBACProxyName + "-kubeconfig"
+	// PromtailName is the name used for labeling the kubernetes resources associated with Promtail installed on the shoot nodes.
+	PromtailName = "gardner-promtail"
 )
