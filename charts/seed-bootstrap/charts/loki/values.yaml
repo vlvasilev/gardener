@@ -3,6 +3,7 @@ global:
     loki: image-repository:image-tag
     loki-curator: image-repository:image-tag
     kube-rbac-proxy: image-repository:image-tag
+    telegraf: image-repository:image-tag
   fluentbit:
     labels:
       gardener.cloud/role: logging
@@ -84,6 +85,9 @@ curator:
 
 kubeProxy:
   port: 8080
+
+telegraf:
+  port: 9273
 
 ingress:
   class: nginx

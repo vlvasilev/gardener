@@ -38,6 +38,7 @@ func (b *Botanist) DeploySeedLogging(ctx context.Context) error {
 		charts.ImageNameLoki,
 		charts.ImageNameLokiCurator,
 		charts.ImageNameKubeRBACKProxy,
+		charts.ImageNameTelegraf,
 	)
 	if err != nil {
 		return err

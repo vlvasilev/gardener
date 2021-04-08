@@ -309,6 +309,8 @@ rules:
       enabled: false
     loki:
       enabled: true
+    lokiTelegraf:
+      enabled: false
 
 alerting:
   auth_type: {}

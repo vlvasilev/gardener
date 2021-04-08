@@ -392,6 +392,8 @@ var _ = Describe("common", func() {
 			&extensionsv1beta1.Ingress{ObjectMeta: metav1.ObjectMeta{Name: "loki", Namespace: v1beta1constants.GardenNamespace}},
 			&corev1.Secret{ObjectMeta: metav1.ObjectMeta{Name: SecretNameLokiKubeRBACProxyKubeconfig, Namespace: v1beta1constants.GardenNamespace}},
 			&corev1.Secret{ObjectMeta: metav1.ObjectMeta{Name: LokiTLS, Namespace: v1beta1constants.GardenNamespace}},
+			&networkingv1.NetworkPolicy{ObjectMeta: metav1.ObjectMeta{Name: "allow-from-prometheus-to-loki-telegraf", Namespace: v1beta1constants.GardenNamespace}},
+			&corev1.ConfigMap{ObjectMeta: metav1.ObjectMeta{Name: "telegraf-config", Namespace: v1beta1constants.GardenNamespace}},
 		}
 
 		BeforeEach(func() {
