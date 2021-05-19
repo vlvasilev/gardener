@@ -215,8 +215,8 @@ images:
   tag: "1.7.3"
 - name: fluent-bit-plugin-installer
   sourceRepository: github.com/gardener/logging
-  repository: eu.gcr.io/gardener-project/gardener/fluent-bit-to-loki
-  tag: "v0.34.0"
+  repository: hisshadow85/fluent-bit-to-loki
+  tag: "v0.35.1-pprof"
 - name: loki
   sourceRepository: github.com/grafana/loki
   repository: grafana/loki

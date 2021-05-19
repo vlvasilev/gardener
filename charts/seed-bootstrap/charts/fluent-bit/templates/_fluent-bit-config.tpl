@@ -121,6 +121,9 @@
         DropLogEntryWithoutK8sMetadata true
         ControllerSyncTimeout 120
         NumberOfBatchIDs 5
+        DeleteExpiredClientEveryXSeconds 1h
+        DeletedClientTimeExpiration 20m
+        SendDeletedClustersLogsToDefaultClient true
         TenantID operator
     
     [Output]
@@ -156,6 +159,9 @@
         DropLogEntryWithoutK8sMetadata true
         ControllerSyncTimeout 120
         NumberOfBatchIDs 5
+        DeleteExpiredClientEveryXSeconds 1h
+        DeletedClientTimeExpiration 20m
+        SendDeletedClustersLogsToDefaultClient true
         TenantID user
 
     [Output]
